@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import '../../controller/api_service/login_signup_api.dart';
 import '../../controller/loading_cont/laoding_controller.dart';
@@ -29,6 +30,7 @@ class _LoginState extends State<Login> {
   final loginSignupController = Get.put(LoginAndSignUp());
   final pushNotificationController = Get.put(PushNotification());
 
+
   checkInternet() async {
     result = await Connectivity().checkConnectivity();
     if (result != ConnectivityResult.none) {
@@ -53,19 +55,16 @@ class _LoginState extends State<Login> {
     super.initState();
   }
 
-  @override
-  void dispose() {
-    subscription.cancel();
-    super.dispose();
-  }
+
 
   login() async {
     if (_formKey.currentState!.validate()) {
       loadingController.isLoading(true);
       try {
         await loginSignupController.login();
-        if(loginSignupController.userDetails!=null){
-          Get.to(HomeScreen());
+        if (loginSignupController.currentUserDetail != null) {
+          pushNotificationController.saveToken();
+          Get.offAll(HomeScreen());
         }
       } catch (e) {
         var m = e as Map;
@@ -124,14 +123,36 @@ class _LoginState extends State<Login> {
                 ),
               ),
               if (loadingController.loading)
-                Container(
-                  height: double.infinity,
-                  width: double.infinity,
-                  color: Colors.black45,
-                  child: const Center(
-                    child: CircularProgressIndicator(
-                      color: green,
-                    ),
+                Material(
+                  color: Colors.transparent,
+                  child: Container(
+                    height: double.infinity,
+                    width: double.infinity,
+                    color: Colors.black45,
+                    child: Center(
+                        child: Container(
+                          height: 80,
+                          width: 80,
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: Colors.black,
+                          ),
+                          child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.center,children: const [
+                            Text("Loading",style: TextStyle(color: Colors.white),),
+                            Padding(
+                              padding: EdgeInsets.only(top: 13),
+                              child: SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+
+                                  color: green,
+                                ),
+                              ),
+                            ),
+                          ]),
+                        )),
                   ),
                 )
             ],
@@ -142,18 +163,9 @@ class _LoginState extends State<Login> {
   MaterialButton loginButton() {
     return MaterialButton(
       onPressed: login,
-      // onPressed: () {
-      //   Navigator.of(context)
-      //       .push(MaterialPageRoute(builder: (_) => HomeScreen()));
-      //   print(loginSignupController.nameC.value.text);
-      //   print(loginSignupController.emailC.value.text);
-      //   print(loginSignupController.passwordC.value.text);
-      // },
       color: green,
       minWidth: double.infinity,
-      height: 50,
-      // shape: RoundedRectangleBorder(
-      //     borderRadius: BorderRadius.circular(12)),
+      height: 50.h,
       child: Text(
         "Log in",
         style: white50024,
@@ -171,16 +183,16 @@ class _LoginState extends State<Login> {
             style: black40016,
           ),
         ),
-        verticalHeight(height: 20),
-        Align(
-          alignment: Alignment.center,
-          child: RichText(
-              text: TextSpan(children: [
-            TextSpan(text: "Log in with", style: black40016),
-            TextSpan(text: " Google", style: black50016)
-          ])),
-        ),
-        verticalHeight(height: 30),
+        // verticalHeight(height: 20),
+        // Align(
+        //   alignment: Alignment.center,
+        //   child: RichText(
+        //       text: TextSpan(children: [
+        //     TextSpan(text: "Log in with", style: black40016),
+        //     TextSpan(text: " Google", style: black50016)
+        //   ])),
+        // ),
+        verticalHeight(height: 30.h),
         Align(
           alignment: Alignment.center,
           child: RichText(
@@ -192,8 +204,7 @@ class _LoginState extends State<Login> {
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
                     loginSignupController.textEditingControllers();
-                    Navigator.of(context).push(
-                        MaterialPageRoute(builder: (context) => SignUp()));
+                    Get.to(()=>SignUp());
                   })
           ])),
         ),
@@ -210,7 +221,7 @@ class _LoginState extends State<Login> {
           "Email",
           style: black50016,
         ),
-        verticalHeight(height: 5),
+        verticalHeight(height: 5.h),
         TextFormField(
           validator: (value) {
             if (value!.isEmpty) {
@@ -224,17 +235,17 @@ class _LoginState extends State<Login> {
           },
           controller: loginSignupController.emailC.value,
           decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.h),
               hintText: "Email",
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15.r))),
         ),
-        verticalHeight(height: 20),
+        verticalHeight(height: 20.h),
         Text(
           "Password",
           style: black50016,
         ),
-        verticalHeight(height: 5),
+        verticalHeight(height: 5.h),
         TextFormField(
           obscureText: hidePassword,
           controller: loginSignupController.passwordC.value,
@@ -259,25 +270,23 @@ class _LoginState extends State<Login> {
                           Icons.remove_red_eye,
                           color: green,
                         )),
-              contentPadding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+              contentPadding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 5.h),
               hintText: "Password",
               border:
-                  OutlineInputBorder(borderRadius: BorderRadius.circular(15))),
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(15.r))),
         ),
-        Row(
-          children: [
-            Checkbox(
-                value: isChecked,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5)),
-                onChanged: (value) {
-                  setState(() {
-                    isChecked = value!;
-                  });
-                }),
-            Text("Remember"),
-          ],
-        ),
+        // Row(
+        //   children: [
+        //     Obx(() => Checkbox(
+        //         value: loginSignupController.rememberMe,
+        //         shape: RoundedRectangleBorder(
+        //             borderRadius: BorderRadius.circular(5)),
+        //         onChanged: (value) {
+        //           loginSignupController.toggleRememberMe(value!);
+        //         })),
+        //     Text("Remember"),
+        //   ],
+        // ),
       ],
     );
   }

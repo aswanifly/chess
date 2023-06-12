@@ -1,46 +1,61 @@
 import 'package:chess/exports.dart';
 import 'package:chess/screens/game_screens/opponent_profile.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 
 class FinalResult extends StatelessWidget {
   const FinalResult({Key? key}) : super(key: key);
 
+  Future<bool> _onWillPop() async {
+    Get.closeAllSnackbars();
+    Get.showSnackbar(GetSnackBar(
+      message: "Press on Home",
+      duration: Duration(seconds: 1),
+      isDismissible: true,
+    ));
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: Scaffold(
-        body: SizedBox(
-          height: double.infinity,
-          width: double.infinity,
-          child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                topBar(context),
-                Divider(
-                  thickness: 1,
-                  color: Color(0xff545454),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: SizedBox(
-                      child: Column(
-                    children: [
-                      // Divider(),
-                      Text(
-                        "WON",
-                        style: green50024,
-                      ),
-                      resultCard(context, "Ram", "assets/svg/blackKing.svg",
-                          "assets/svg/7309681.jpg"),
-                      verticalHeight(height: 30),
-                      resultCard(context, "Krishna", "assets/svg/whiteKing.svg",
-                          "assets/svg/7309667.jpg")
-                    ],
-                  )),
-                )
-              ]),
+      child: WillPopScope(
+        onWillPop: _onWillPop,
+        child: Scaffold(
+          body: SizedBox(
+            height: double.infinity,
+            width: double.infinity,
+            child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  topBar(context),
+                  Divider(
+                    thickness: 1,
+                    color: Color(0xff545454),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(15),
+                    child: SizedBox(
+                        child: Column(
+                      children: [
+                        // Divider(),
+                        Text(
+                          "WON",
+                          style: green50024,
+                        ),
+                        resultCard(context, "You", "assets/svg/blackKing.svg",
+                            "assets/svg/7309681.jpg"),
+                        verticalHeight(height: 30.h),
+                        resultCard(context, "Other", "assets/svg/whiteKing.svg",
+                            "assets/svg/7309667.jpg")
+                      ],
+                    )),
+                  )
+                ]),
+          ),
         ),
       ),
     );
@@ -56,20 +71,20 @@ class FinalResult extends StatelessWidget {
               // backgroundColor: grey,
               backgroundImage: AssetImage(image),
             ),
-            horizontalWidth(width: 15),
+            horizontalWidth(width: 15.w),
             Text(
               name,
               style: black50020,
             ),
-            horizontalWidth(width: 18),
+            horizontalWidth(width: 18.w),
             SvgPicture.asset(
               kingImage,
-              height: 20,
-              width: 18,
+              height: 20.h,
+              width: 18.w,
             ),
           ],
         ),
-        verticalHeight(height: 22),
+        verticalHeight(height: 22.h),
         Align(
           alignment: Alignment.centerLeft,
           child: MaterialButton(
@@ -78,7 +93,7 @@ class FinalResult extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => OpponentProfile()));
             },
             color: violet,
-            padding: EdgeInsets.symmetric(horizontal: 60),
+            padding: EdgeInsets.symmetric(horizontal: 60.w),
             child: Icon(
               Icons.play_arrow,
               color: Colors.white,
@@ -100,16 +115,18 @@ class FinalResult extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              GestureDetector(
-                  onTap: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Icon(Icons.arrow_back)),
-              horizontalWidth(width: 50),
+              // GestureDetector(
+              //     onTap: () {
+              //       Navigator.of(context).pop();
+              //     },
+              //     child: Icon(Icons.arrow_back)),
+              // horizontalWidth(width: 50.w),
               Text(
                 "Final Result",
                 style: black50020,
               ),
+              Spacer(),
+              IconButton(onPressed: (){Get.offAll(()=>HomeScreen(gameIsRunning: false,));}, icon: Icon(Icons.home_filled)),
             ],
           ),
         ],

@@ -1,19 +1,28 @@
 import 'dart:async';
 
+import 'package:chess/controller/api_service/game_controller.dart';
 import 'package:chess/controller/loading_cont/laoding_controller.dart';
+import 'package:chess/models/friend_req_details.dart';
 import 'package:chess/models/user_detail_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../constants/constant.dart';
+import '../../controller/api_service/confirm_controller.dart';
 import '../../controller/api_service/home_controller.dart';
 import '../../controller/api_service/login_signup_api.dart';
 import '../../controller/notification/push_notification.dart';
 import '../../exports.dart';
 import '../../models/all_users_details.dart';
+import '../../widget/time_tile.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final bool? gameIsRunning;
+
+  const HomeScreen({Key? key, this.gameIsRunning = false}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -28,14 +37,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final pushNotification = Get.put(PushNotification());
   bool _isloading = false;
   final searchController = TextEditingController();
+  final confrmAndColorController = Get.put(ConfirmController());
   List<AllUsersDetails> searchUser = [];
-
 
   getAllUsers() async {
     setState(() {
       _isloading = true;
     });
-    await homeController.getAllUsers(loginAndSignUp.userDetails!.token);
+
+    await homeController.getAllUsers(loginAndSignUp.currentUserDetail!.token);
     setState(() {
       _isloading = false;
     });
@@ -55,14 +65,83 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  sendNotification(String senderName, String id) async {
+    var token = await pushNotification.getUserTokenDB(id);
+    print("this is token $token");
+    Map body = {
+      "senderName": loginAndSignUp.currentUserDetail!.userName,
+      "screen": 1,
+    };
+    pushNotification.sendPushMessage(token, body, "New Friend Request");
+  }
+
+  onRefresh() async {
+    await homeController.getAllUsers(loginAndSignUp.currentUserDetail!.token);
+  }
+
+
+
+  logout() {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text("Do you want to logout"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Get.back();
+                },
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: loginAndSignUp.logout,
+                child: const Text('Logout'),
+              ),
+            ],
+          );
+        });
+  }
+
+  gameIsRunning() {
+    // if(widget.gameIsRunning!){
+    homeController.blinkText();
+    // return;
+    // }else{
+    //   return null;
+    // }
+  }
+
+  sendRequest(AllUsersDetails allUsersDetails) async {
+    await homeController.sendFriendRequest(
+        allUsersDetails.userId!,
+        confrmAndColorController.selectedColor.value,
+        confrmAndColorController.selectedTiming.value.toString());
+
+    sendNotification(
+        loginAndSignUp.currentUserDetail!.userName, allUsersDetails.userId!);
+    confrmAndColorController.selectedColor.value = '';
+    confrmAndColorController.selectedTiming.value = 0;
+    Get.back();
+    Get.showSnackbar(GetSnackBar(
+      duration: Duration(seconds: 1),
+      message: homeController.message.value,
+    ));
+  }
 
   @override
   void initState() {
-    getAllUsers();
-    pushNotification.saveToken();
+    gameIsRunning();
     pushNotification.initInfo();
+    getAllUsers();
     searchUser = homeController.allUsers;
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -73,20 +152,20 @@ class _HomeScreenState extends State<HomeScreen> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Do you want to go exit?'),
+              title: const Text('Do you want to exit?'),
               actionsAlignment: MainAxisAlignment.spaceBetween,
               actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('Cancel'),
+                ),
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context, true);
                   },
                   child: const Text('Yes'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  child: const Text('No'),
                 ),
               ],
             );
@@ -95,14 +174,14 @@ class _HomeScreenState extends State<HomeScreen> {
         return shouldPop!;
       },
       child: SafeArea(
-        child: _isloading
-            ? const Center(
-                child: CircularProgressIndicator(
-                  color: green,
-                ),
-              )
-            : Scaffold(
-                body: SizedBox(
+        child: Scaffold(
+          body: _isloading
+              ? const Center(
+                  child: CircularProgressIndicator(
+                    color: green,
+                  ),
+                )
+              : SizedBox(
                   height: double.infinity,
                   width: double.infinity,
                   child: Padding(
@@ -112,12 +191,52 @@ class _HomeScreenState extends State<HomeScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         profileAndName(),
-                        verticalHeight(height: 23),
-                        Text(
-                          "Choose Player",
-                          style: black50020,
+                        verticalHeight(height: 23.h),
+                        Row(
+                          children: [
+                            Text(
+                              "Choose Player",
+                              style: black50020,
+                            ),
+                            // Spacer(),
+                            // widget.gameIsRunning!
+                            //     ? GestureDetector(
+                            //         onTap: () {
+                            //           final gameController =
+                            //               Get.put(GameBoardController());
+                            //           Get.to(() => StartGame(
+                            //                 gameId: gameController.gameId.value,
+                            //                 opponentName: gameController
+                            //                     .opponentName.value,
+                            //               ));
+                            //         },
+                            //         child: Chip(
+                            //           shape: StadiumBorder(
+                            //               side: BorderSide(
+                            //             width: 1,
+                            //             color: Colors.redAccent,
+                            //           )),
+                            //           avatar: Obx(() => Container(
+                            //                 height: 10.h,
+                            //                 width: 10.w,
+                            //                 decoration: BoxDecoration(
+                            //                   borderRadius:
+                            //                       BorderRadius.circular(5.r),
+                            //                   color: homeController.blink.isTrue
+                            //                       ? green.withOpacity(0.7)
+                            //                       : Colors.transparent,
+                            //                 ),
+                            //               )),
+                            //           label: Text(
+                            //             "Game",
+                            //             style: TextStyle(color: green),
+                            //           ),
+                            //         ),
+                            //       )
+                            //     : SizedBox()
+                          ],
                         ),
-                        verticalHeight(height: 13),
+                        verticalHeight(height: 13.h),
                         TextField(
                           controller: searchController,
                           onChanged: (value) => runFilter(value),
@@ -125,23 +244,33 @@ class _HomeScreenState extends State<HomeScreen> {
                               suffixIcon: IconButton(
                                   onPressed: () {}, icon: Icon(Icons.search)),
                               contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 15, vertical: 5),
+                                  horizontal: 15.w, vertical: 5.h),
                               hintText: "Search name",
                               border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(15))),
+                                  borderRadius: BorderRadius.circular(15.r))),
                         ),
                         Expanded(
-                            child: ListView.builder(
-                                itemCount: searchUser.length,
-                                itemBuilder: (_, i) {
-                                  AllUsersDetails allUsersDetails = searchUser[i];
-                                  return buildPlayerCard(allUsersDetails, i);
-                                })),
+                            child: RefreshIndicator(
+                          onRefresh: () async {
+                            await homeController.getAllUsers(
+                                loginAndSignUp.currentUserDetail!.token);
+                            setState(() {
+                              searchUser = homeController.allUsers;
+                            });
+                          },
+                          color: green,
+                          child: ListView.builder(
+                              itemCount: searchUser.length,
+                              itemBuilder: (_, i) {
+                                AllUsersDetails allUsersDetails = searchUser[i];
+                                return buildPlayerCard(allUsersDetails, i);
+                              }),
+                        )),
                       ],
                     ),
                   ),
                 ),
-              ),
+        ),
       ),
     );
   }
@@ -152,91 +281,235 @@ class _HomeScreenState extends State<HomeScreen> {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: ListTile(
-        onTap: () {
-          setState(() {
-            currentIndex = i;
-          });
-        },
-        selected: currentIndex == i ? !selected : selected,
+        // onTap: () {
+        //   setState(() {
+        //     currentIndex = i;
+        //   });
+        // },
+        selected: allUsersDetails.userId == loginAndSignUp.opponentId.value &&
+                widget.gameIsRunning!
+            ? true
+            : false,
         selectedColor: Colors.black,
-        selectedTileColor: lightGrey,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 15),
+        selectedTileColor: green.withOpacity(0.2),
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
+        contentPadding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
         leading: CircleAvatar(
-          radius: 25,
+          radius: 18.r,
           // backgroundColor: green,
           backgroundImage: AssetImage("assets/svg/7309681.jpg"),
         ),
         title: Text(allUsersDetails.userName!),
         trailing: Obx(
-          () => Row(
+          () => homeController.checkFriendList(allUsersDetails.userId!)
+              ? Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              homeController.friendRequestList.contains(allUsersDetails.userId!)
-                  ? SizedBox()
-                  : GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              content: Text("Send Request"),
-                              actions: [
-                                MaterialButton(
-                                    child: Text("Cancel"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    }),
-                                MaterialButton(
-                                    child: Text("Send"),
-                                    onPressed: () {
-                                      homeController
-                                          .sendFriendRequest(allUsersDetails.userId!)
-                                          .then((value) {
-                                        Navigator.of(context).pop();
-                                        Get.showSnackbar(GetSnackBar(
-                                          duration: Duration(seconds: 1),
-                                          message: homeController.message.value,
-                                        ));
-                                      });
-                                      print(allUsersDetails.userId!);
-                                    }),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: SizedBox(
-                          height: 20,
-                          width: 18,
-                          child: SvgPicture.asset(
-                            "assets/svg/blackKing.svg",
-                            fit: BoxFit.cover,
-                          )),
-                    ),
-              horizontalWidth(width: 15),
-              homeController.friendRequestList.contains(allUsersDetails.userId!)
-                  ? Row(
-                      children: [
-                        IconButton(
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (_) => GameConfirmation(
-                                        allUsersDetails: allUsersDetails,
-                                      )));
-                            },
-                            icon: Icon(Icons.check_circle_outline,
-                                color: Colors.black)),
-                        IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.cancel_outlined,
-                              color: Colors.black,
-                            ))
-                      ],
-                    )
-                  : SizedBox(),
+              IconButton(
+                  onPressed: () {
+                    homeController.singleUserDetails =
+                        allUsersDetails;
+                    homeController
+                        .singleFriendReq(allUsersDetails.userId!);
+                    Get.to(()=>GameConfirmation(
+                      allUsersDetails: allUsersDetails,
+                    ));
+                  },
+                  icon: Icon(Icons.check_circle_outline,
+                      color: Colors.black)),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.cancel_outlined,
+                    color: Colors.black,
+                  ))
             ],
+          )
+              : GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                              "Send Request to ${allUsersDetails.userName}"),
+                          verticalHeight(height: 10.h),
+                          Text(
+                            "Choose Color",
+                            style: black50014,
+                          ),
+                          verticalHeight(height: 5.h),
+                          Obx(() => Container(
+                            margin: EdgeInsets.only(left: 5.w),
+                            decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius:
+                                BorderRadius.circular(10.r),
+                                border: Border.all(
+                                    color: Colors.black)),
+                            height: 40.h,
+                            // width: 150.w,
+                            child: Row(children: [
+                              Expanded(
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      confrmAndColorController
+                                          .selectedColorIndex
+                                          .value = 1;
+                                      confrmAndColorController
+                                          .selectedColor("black");
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: confrmAndColorController
+                                            .selectedColorIndex
+                                            .value ==
+                                            1
+                                            ? grey
+                                            : null,
+                                        borderRadius:
+                                        BorderRadius.only(
+                                            topLeft:
+                                            Radius.circular(
+                                                10.r),
+                                            bottomLeft:
+                                            Radius.circular(
+                                                10.r)),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Black",
+                                        style: black50012,
+                                        overflow:
+                                        TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )),
+                              Container(
+                                height: double.infinity,
+                                width: 1.w,
+                                child: null,
+                                color: Colors.black,
+                              ),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () {
+                                    confrmAndColorController
+                                        .selectedColorIndex
+                                        .value = 2;
+                                    confrmAndColorController
+                                        .selectedColor("white");
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: confrmAndColorController
+                                          .selectedColorIndex
+                                          .value ==
+                                          2
+                                          ? grey
+                                          : null,
+                                      borderRadius: BorderRadius
+                                          .only(
+                                          topRight:
+                                          Radius.circular(
+                                              10.r),
+                                          bottomRight:
+                                          Radius.circular(
+                                              10.r)),
+                                    ),
+                                    child: Text(
+                                      "White",
+                                      style: black50012,
+                                      overflow:
+                                      TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ]),
+                          )),
+                          verticalHeight(height: 10.h),
+                          Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: timeTileList
+                                  .asMap()
+                                  .entries
+                                  .map((e) => TimeTile(
+                                title: e.value["1"],
+                                secondPartOne: e.value["2"],
+                                secondPartTwo: e.value["3"],
+                                secondPartThree: e.value["4"],
+                                callback: () {
+                                  confrmAndColorController
+                                      .selectedTimingTile(
+                                      e.key);
+                                  confrmAndColorController
+                                      .selectedTiming(
+                                      int.parse(
+                                          e.value["2"]));
+                                  print(
+                                      confrmAndColorController
+                                          .selectedTiming
+                                          .value);
+                                },
+                                index: e.key,
+                              ))
+                                  .toList()),
+                          verticalHeight(height: 5.h),
+                          Obx(() => confrmAndColorController
+                              .selectedColor.isEmpty
+                              ? Text("Please Select Color",style: TextStyle(color: Colors.red,),textAlign: TextAlign.center,)
+                              : SizedBox())
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      MaterialButton(
+                          child: Text("Cancel"),
+                          onPressed: (){
+                            Get.back();
+                            confrmAndColorController
+                                .selectedColor("");
+                            confrmAndColorController
+                                .selectedColorIndex(0);
+
+                          }),
+                      Obx(() => MaterialButton(
+                          onPressed: confrmAndColorController
+                              .selectedColor.isNotEmpty
+                              ? () {
+                            sendRequest(allUsersDetails);
+                          }
+                              : null,
+                          child: Text(
+                            "Send",
+                            style: TextStyle(
+                                color: confrmAndColorController
+                                    .selectedColor.isEmpty
+                                    ? Colors.grey
+                                    : null),
+                          ))),
+                    ],
+                  );
+                },
+              );
+            },
+            child: SizedBox(
+                height: 20.h,
+                width: 20.w,
+                child: SvgPicture.asset(
+                  "assets/svg/blackKing.svg",
+                  fit: BoxFit.cover,
+                )),
           ),
         ),
       ),
@@ -249,15 +522,25 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         CircleAvatar(
           backgroundColor: green,
-          radius: 40,
+          radius: 30.r,
           backgroundImage: AssetImage("assets/svg/7309667.jpg"),
-          // child: Image.asset("assets/svg/7309667.jpg"),
         ),
-        horizontalWidth(width: 40),
-        Text(
-          "Welcome ${loginAndSignUp.userDetails!.userName}",
-          style: black50024,
-        )
+        horizontalWidth(width: 15.w),
+        Expanded(
+          child: Text(
+            "Welcome ${loginAndSignUp.currentUserDetail!.userName}",
+            style: black50016,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Spacer(),
+        InkWell(
+          onTap: logout,
+          child: Icon(
+            Icons.logout,
+            size: 15.w,
+          ),
+        ),
       ],
     );
   }

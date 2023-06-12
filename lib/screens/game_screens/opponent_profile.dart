@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../exports.dart';
 
@@ -18,11 +19,11 @@ class OpponentProfile extends StatelessWidget {
               children: [
                 topBar(context),
                 Divider(
-                  thickness: 1,
+                  thickness: 1.w,
                   color: Color(0xff545454),
                 ),
                 buildShowResult(),
-                verticalHeight(height: 30),
+                verticalHeight(height: 30.h),
                 Padding(
                   padding: const EdgeInsets.all(15.0),
                   child: Row(
@@ -40,12 +41,12 @@ class OpponentProfile extends StatelessWidget {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15),
+                  padding:  EdgeInsets.only(left: 15.w, right: 15.w),
                   child: SizedBox(
                     height: 80,
                     child: Card(
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
+                          borderRadius: BorderRadius.circular(10.r)),
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Row(children: [
@@ -54,7 +55,7 @@ class OpponentProfile extends StatelessWidget {
                             backgroundImage:
                                 AssetImage("assets/svg/7309681.jpg"),
                           ),
-                          horizontalWidth(width: 10),
+                          horizontalWidth(width: 10.w),
                           Text(
                             "Name",
                             style: black50016,
@@ -64,7 +65,7 @@ class OpponentProfile extends StatelessWidget {
                             "Won",
                             style: green50016,
                           ),
-                          horizontalWidth(width: 10),
+                          horizontalWidth(width: 10.w),
                           Icon(
                             Icons.check_circle_outline,
                             color: green,
@@ -90,12 +91,12 @@ class OpponentProfile extends StatelessWidget {
 
   Container winDrawLostButton(String buttonName) {
     return Container(
-      height: 35,
-      width: 100,
+      height: 35.h,
+      width: 100.w,
       alignment: Alignment.center,
       decoration: BoxDecoration(
           border: Border.all(color: violet),
-          borderRadius: BorderRadius.circular(10)),
+          borderRadius: BorderRadius.circular(10.r)),
       child: Text(
         buttonName,
         style: black50014,
@@ -119,11 +120,11 @@ class OpponentProfile extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   child: Icon(Icons.arrow_back)),
-              horizontalWidth(width: 10),
+              horizontalWidth(width: 10.w),
               CircleAvatar(
                 backgroundImage: AssetImage("assets/svg/7309667.jpg"),
               ),
-              horizontalWidth(width: 10),
+              horizontalWidth(width: 10.w),
               Text(
                 "Krishna",
                 style: black50020,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import '../../controller/api_service/login_signup_api.dart';
@@ -44,6 +45,8 @@ class _SignUpState extends State<SignUp> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -65,18 +68,18 @@ class _SignUpState extends State<SignUp> {
                             "Sign Up",
                             style: black60030,
                           ),
-                          verticalHeight(height: 50),
+                          verticalHeight(height: 50.h),
                           Text(
                             "Email",
                             style: black50016,
                           ),
-                          verticalHeight(height: 5),
+                          verticalHeight(height: 5.h),
                           TextFormField(
                             validator: (value) {
                               if (value!.isEmpty) {
                                 return "Please enter email";
                               } else if (!RegExp(
-                                      r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                      r"^[a-zA-Z0-9.a-zA-Z0-9!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
                                   .hasMatch(value)) {
                                 return "enter proper email";
                               }
@@ -85,17 +88,17 @@ class _SignUpState extends State<SignUp> {
                             controller: loginSignupController.emailC.value,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 5),
+                                    horizontal: 15.w, vertical: 5.h),
                                 hintText: "Email",
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
+                                    borderRadius: BorderRadius.circular(15.r))),
                           ),
-                          verticalHeight(height: 20),
+                          verticalHeight(height: 20.h),
                           Text(
                             "Username",
                             style: black50016,
                           ),
-                          verticalHeight(height: 5),
+                          verticalHeight(height: 5.h),
                           TextFormField(
                             validator: (value) {
                               if (value!.isEmpty) {
@@ -106,17 +109,17 @@ class _SignUpState extends State<SignUp> {
                             controller: loginSignupController.nameC.value,
                             decoration: InputDecoration(
                                 contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 5),
+                                    horizontal: 15.w, vertical: 5.h),
                                 hintText: "Username",
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
+                                    borderRadius: BorderRadius.circular(15.r))),
                           ),
-                          verticalHeight(height: 20),
+                          verticalHeight(height: 20.h),
                           Text(
                             "Password",
                             style: black50016,
                           ),
-                          verticalHeight(height: 5),
+                          verticalHeight(height: 5.h),
                           TextFormField(
                             validator: (value) {
                               if (value!.isEmpty) {
@@ -139,17 +142,17 @@ class _SignUpState extends State<SignUp> {
                                         ? Icon(Icons.visibility_off)
                                         : Icon(Icons.visibility)),
                                 contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 15, vertical: 5),
+                                    horizontal: 15.w, vertical: 5.h),
                                 hintText: "Password",
                                 border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(15))),
+                                    borderRadius: BorderRadius.circular(15.r))),
                           ),
                           Row(
                             children: [
                               Checkbox(
                                   value: loginSignupController.tAndc,
                                   shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(5)),
+                                      borderRadius: BorderRadius.circular(5.r)),
                                   onChanged: (value) {
                                     loginSignupController.tAndC(value!);
                                   }),
@@ -162,50 +165,73 @@ class _SignUpState extends State<SignUp> {
                               ])),
                             ],
                           ),
-                          verticalHeight(height: 55),
+                          verticalHeight(height: 55.h),
                           MaterialButton(
                             onPressed: signUp,
                             color: green,
                             minWidth: double.infinity,
-                            height: 50,
+                            height: 50.h,
                             shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12)),
+                                borderRadius: BorderRadius.circular(12.r)),
                             child: Text(
                               "Sign up",
                               style: white50024,
                             ),
                           ),
-                          verticalHeight(height: 20),
-                          Align(
-                            alignment: Alignment.center,
-                            child: Text(
-                              "or",
-                              style: black40016,
-                            ),
-                          ),
-                          verticalHeight(height: 20),
-                          Align(
-                            alignment: Alignment.center,
-                            child: RichText(
-                                text: TextSpan(children: [
-                              TextSpan(text: "Log in with", style: black40016),
-                              TextSpan(text: " Google", style: black50016)
-                            ])),
-                          ),
+                          // verticalHeight(height: 20.h),
+                          // Align(
+                          //   alignment: Alignment.center,
+                          //   child: Text(
+                          //     "or",
+                          //     style: black40016,
+                          //   ),
+                          // ),
+                          // verticalHeight(height: 20.h),
+                          // Align(
+                          //   alignment: Alignment.center,
+                          //   child: RichText(
+                          //       text: TextSpan(children: [
+                          //     TextSpan(text: "Log in with", style: black40016),
+                          //     TextSpan(text: " Google", style: black50016)
+                          //   ])),
+                          // ),
                         ]),
                   ),
                 ),
               ),
             ),
             if (loadingController.loading)
-              Container(
-                height: double.infinity,
-                width: double.infinity,
-                color: Colors.black12,
-                child: Center(
-                    child: CircularProgressIndicator(
-                  color: green,
-                )),
+              Material(
+                color: Colors.transparent,
+                child: Container(
+                  height: double.infinity,
+                  width: double.infinity,
+                  color: Colors.black45,
+                  child: Center(
+                      child: Container(
+                        height: 80.h,
+                        width: 80.w,
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8.r),
+                          color: Colors.black,
+                        ),
+                        child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.center,children:  [
+                          Text("Loading",style: TextStyle(color: Colors.white),),
+                          Padding(
+                            padding: EdgeInsets.only(top: 13),
+                            child: SizedBox(
+                              height: 20.h,
+                              width: 20.w,
+                              child: CircularProgressIndicator(
+
+                                color: green,
+                              ),
+                            ),
+                          ),
+                        ]),
+                      )),
+                ),
               )
           ],
         );

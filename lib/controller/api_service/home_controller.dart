@@ -1,66 +1,112 @@
 import 'dart:async';
 
 import 'package:chess/api/api_constant.dart';
+import 'package:chess/models/friend_req_details.dart';
 import 'package:get/get.dart';
 
 import '../../api/api_helper.dart';
 import '../../models/all_users_details.dart';
+import '../../models/player.dart';
 import '../../models/user_detail_model.dart';
 import 'login_signup_api.dart';
 
 class HomeController extends GetxController {
+
+
   RxList<AllUsersDetails> allUsers = <AllUsersDetails>[].obs;
-  RxList friendRequestList = [].obs;
+  RxList<FriendRequestDetail> friendRequestList = <FriendRequestDetail>[].obs;
   RxList dummyFriend = [].obs; //data dega
+  RxList requestSendList = [].obs;
   final loginSignCont = Get.put(LoginAndSignUp());
   RxString message = "".obs;
+  FriendRequestDetail? onePlayerReqDetail;
+  RxString playingTime = "".obs;
+  AllUsersDetails? singleUserDetails;
+  RxBool blink = true.obs;
 
   @override
   void onInit() async {
-    // Timer.periodic(Duration(seconds: 3), (timer){
-    //   // if(friendRequestList.isNotEmpty){
-    //   //   dummyFriend= friendRequestList;
-    //   // }
-    //
-    // });
-    // super.onInit();
 
-    Timer.periodic(Duration(seconds: 2), (timer) async {
-      friendRequestList.value = await friendRequest();
-      // print(friendRequestList.toString());
-      // print(friendRequestList.length);
-    });
+    try {
+      Timer.periodic(Duration(seconds: 2), (timer) async {
+        friendRequestList.value = await friendRequest();
+      });
+    } catch (_) {
+      print("went wrong");
+    }
     super.onInit();
   }
 
+
   getAllUsers(String token) async {
     String url = GET_ALL_USER;
+    List<AllUsersDetails> list = [];
     Map<String, dynamic> data = await ApiHelper().apiTypeGet(url, token);
+    print("all the user details $data");
     for (int i = 0; i < data["allUsersData"].length; i++) {
-      // allUsers.add(CurrentUserDetail.fromJson(data["allUsersData"][i]));
-      allUsers.add(AllUsersDetails.fromJson(data["allUsersData"][i]));
+      list.add(AllUsersDetails.fromJson(data["allUsersData"][i]));
     }
-    print(allUsers.length);
+    allUsers.value = list;
   }
 
-  Future<List<dynamic>> friendRequest() async {
+  Future<List<FriendRequestDetail>> friendRequest() async {
     String url = FRIEND_REQ;
 
-    Map<String, dynamic> data =
-        await ApiHelper().apiTypeGet(url, loginSignCont.userDetails!.token);
-    return data["list"];
+    Map<String, dynamic> data = await ApiHelper()
+        .apiTypeGet(url, loginSignCont.currentUserDetail!.token);
+    print(data["list"]);
+    List<FriendRequestDetail> allReq = [];
+    for(int i =0;i< data["list"].length;i++){
+      allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
+    }
+    return allReq;
   }
 
-  Future sendFriendRequest(String id) async {
+  Future sendFriendRequest(String id,String color,String time) async {
     String url = SEND_FRIEND_REQ;
-    var jsonBody = {"reciverId": id};
-    Map<String, dynamic> data = await ApiHelper().apiTypeHeaderPost(
-        url: url,
-        jsonBody: jsonBody,
-        token: loginSignCont.userDetails!.token,
-        methodType: 'POST');
-    message.value = data["message"];
-    print(data);
-    return data;
+    var jsonBody = {
+      "reciverId": id,
+      "colour": color,
+      "time": time
+    };
+    print(jsonBody);
+    try {
+      Map<String, dynamic> data = await ApiHelper().apiType(
+          url: url,
+          jsonBody: jsonBody,
+          token: loginSignCont.currentUserDetail!.token,
+          methodType: 'POST');
+      message.value = data["message"];
+      print(data);
+      return data;
+    } catch (_) {
+      rethrow;
+    }
+  }
+
+  blinkText() {
+    Timer.periodic(Duration(milliseconds: 500), (timer) {
+      blink.value = !blink.value;
+    });
+  }
+
+  bool checkFriendList(String userId){
+    for(var i in friendRequestList){
+      if(i.userId == userId){
+        return true;
+      }
+    }
+    return false;
+  }
+
+   FriendRequestDetail? singleFriendReq(String userId){
+    for(var i in friendRequestList){
+      if(i.userId== userId){
+        onePlayerReqDetail = i;
+        playingTime(i.time);
+        return i;
+      }
+    }
+    return null;
   }
 }

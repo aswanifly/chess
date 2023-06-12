@@ -6,7 +6,7 @@ import 'package:http/http.dart' as http;
 import 'api_constant.dart';
 
 class ApiHelper {
-  apiTypePost({required url, required jsonBody}) async {
+  apiPost({required url, required jsonBody}) async {
     var uri = baseUrl + url;
     var request = http.Request('POST', Uri.parse(uri));
     request.bodyFields = jsonBody;
@@ -16,11 +16,11 @@ class ApiHelper {
         var value = await response.stream.bytesToString();
         var responseData = jsonDecode(value);
         return responseData;
-      } else if(response.statusCode != 200){
+      } else if (response.statusCode != 200) {
         var value = await response.stream.bytesToString();
         var responseData = jsonDecode(value);
         throw responseData;
-      }else{
+      } else {
         throw "Something went wrong";
       }
     } on HttpException catch (e) {
@@ -49,13 +49,14 @@ class ApiHelper {
     }
   }
 
-  apiTypeHeaderPost(
-      {required url,
-      required jsonBody,
-      required token,
-      required String methodType}) async {
+  apiType({required url,
+    required jsonBody,
+    required token,
+    required String methodType}) async {
     var uri = baseUrl + url;
+    print("this is url $uri");
     var header = {
+      // 'Content-Type': 'application/json',
       'Accept': 'application/json',
       'Authorization': 'Bearer $token',
     };
@@ -71,11 +72,17 @@ class ApiHelper {
       } else {
         var value = await response.stream.bytesToString();
         var responseData = jsonDecode(value);
+        // throw responseData;
         return responseData;
       }
+      // else{
+      //   throw "Something Went Wrong";
+      // }
+
     } on HttpException catch (_) {
       print(HttpException);
       rethrow;
     }
   }
+
 }

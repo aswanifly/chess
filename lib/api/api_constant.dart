@@ -18,7 +18,7 @@ const String SEND_FRIEND_REQ = "/sendrequest";
 const String CONFIRM_REQUEST = "/confirmrequest";
 
 // send and confirm Request
-const String USER_REQUEST = "";
+// const String USER_REQUEST = "";
 
 //select COLOR
 const String SELECT_COLOR = "";
@@ -28,4 +28,8 @@ const String START_TIME = "";
 const String END_TIME = "";
 
 //moves
-const String MOVES = "";
+const String INSERT_MOVES = "/insertbulkmoves/";
+const String GET_MOVES = "/getbulkmoves/";
+
+const String GET_SINGLE_MOVE = "/getSingleMoves/";
+const String SEND_MOVE = "/singleMove/";
