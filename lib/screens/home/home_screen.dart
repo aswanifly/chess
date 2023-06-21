@@ -102,14 +102,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
-  gameIsRunning() {
-    // if(widget.gameIsRunning!){
-    homeController.blinkText();
-    // return;
-    // }else{
-    //   return null;
-    // }
-  }
 
   sendRequest(AllUsersDetails allUsersDetails) async {
     await homeController.sendFriendRequest(
@@ -130,7 +122,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-    gameIsRunning();
     pushNotification.initInfo();
     getAllUsers();
     searchUser = homeController.allUsers;
@@ -286,16 +277,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 ? () {
                     FriendRequestDetail? data =
                         homeController.singleFriendReq(allUsersDetails.userId!);
-                    // print("for player 1 ${data!.userId}");
-                    // print("for player 2 ${data!.playerId}");
-                    // Get.to(() => StartGame(
-                    //       color: "black",
-                    //       playingTime: "10",
-                    //       player1ID: "64919c6cf74f3930eed7083d",
-                    //       player2ID: "64919c91f74f3930eed70895",
-                    //       gameId: "64919d35f74f3930eed70a31",
-                    //       opponentName: allUsersDetails.userName,
-                    //     ));
+                    Get.to(() => StartGame(
+                          color: data!.colour,
+                          playingTime: data.time,
+                          player1ID: data.playerOne,
+                          player2ID: data.playerTwo,
+                          gameId: data.gameId,
+                          opponentName: allUsersDetails.userName,
+                        ));
                   }
                 : null,
             tileColor:

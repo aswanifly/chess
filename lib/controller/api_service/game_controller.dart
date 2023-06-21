@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
 import '../../api/api_constant.dart';
+import '../socket/socket.dart';
 import 'confirm_controller.dart';
 
 class GameController extends GetxController {
@@ -178,12 +179,14 @@ class GameController extends GetxController {
     return data;
   }
 
-  sendMove() async {
+  sendMove(String time) async {
     String url = SEND_MOVE + gameId.value;
     final Map<String, String> jsonBody = {
       "move": displayMoves.value,
-      "userId": loginController.currentUserDetail!.id
+      "userId": loginController.currentUserDetail!.id,
+      "time": time
     };
+    print(jsonBody);
     try {
       await ApiHelper().apiType(url: url,
           jsonBody: jsonBody,

@@ -129,7 +129,7 @@ class _GameBoardState extends State<GameBoard> {
     socketController.sendMessage(
         "gameID", "userId", "move", !socketController.isActive.value);
     controller.pieceMove();
-    await controller.sendMove();
+    await controller.sendMove(socketController.time.value);
   }
 
   @override

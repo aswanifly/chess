@@ -21,7 +21,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final loginAndSignUp = Get.put(LoginAndSignUp());
-  final gameBoardController = Get.put(GameController());
+  // final gameBoardController = Get.put(GameController());
 
   Future<bool> autoLogin() async {
     final prefs = await SharedPreferences.getInstance();
@@ -41,24 +41,24 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
-  Future<bool> checkMoves() async {
-    final prefs = await SharedPreferences.getInstance();
-    if (!prefs.containsKey("localMoves")) {
-      return false;
-    }
-    var extractedData = jsonDecode(prefs.getString("localMoves")!);
-    List secondAndMinute = extractedData["lastTime"].split(':');
-    // print(extractedData.toString());
-    gameBoardController.fetchFromLocalStorage(
-        int.parse(secondAndMinute[1]),
-        int.parse(secondAndMinute[0]),
-        extractedData["moves"],
-        extractedData["opponentName"],
-        extractedData["gameId"],
-        extractedData["color"],
-        extractedData["opponentId"]);
-    return true;
-  }
+  // Future<bool> checkMoves() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   if (!prefs.containsKey("localMoves")) {
+  //     return false;
+  //   }
+  //   var extractedData = jsonDecode(prefs.getString("localMoves")!);
+  //   List secondAndMinute = extractedData["lastTime"].split(':');
+  //   // print(extractedData.toString());
+  //   gameBoardController.fetchFromLocalStorage(
+  //       int.parse(secondAndMinute[1]),
+  //       int.parse(secondAndMinute[0]),
+  //       extractedData["moves"],
+  //       extractedData["opponentName"],
+  //       extractedData["gameId"],
+  //       extractedData["color"],
+  //       extractedData["opponentId"]);
+  //   return true;
+  // }
 
   getScreen() async {
     if (await autoLogin()) {

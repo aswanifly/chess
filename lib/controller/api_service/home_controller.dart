@@ -50,7 +50,7 @@ class HomeController extends GetxController {
 
     Map<String, dynamic> data = await ApiHelper()
         .apiTypeGet(url, loginSignCont.currentUserDetail!.token);
-    // print(data["list"]);
+    print(data["list"]);
     List<FriendRequestDetail> allReq = [];
     for (int i = 0; i < data["list"].length; i++) {
       allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
@@ -75,12 +75,12 @@ class HomeController extends GetxController {
       rethrow;
     }
   }
-
-  blinkText() {
-    Timer.periodic(Duration(milliseconds: 500), (timer) {
-      blink.value = !blink.value;
-    });
-  }
+  //
+  // blinkText() {
+  //   Timer.periodic(Duration(milliseconds: 500), (timer) {
+  //     blink.value = !blink.value;
+  //   });
+  // }
 
   int checkFriendList(String userId) {
     // 0 -  send friend request // 1 - request not accepted // 2 - request accepted
@@ -106,7 +106,6 @@ class HomeController extends GetxController {
       if (i.userId == userId) {
         onePlayerReqDetail = i;
         playingTime(i.time);
-        print(i.time);
         return i;
       }
     }
