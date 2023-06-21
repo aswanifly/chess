@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:chess/controller/api_service/game_controller.dart';
 import 'package:chess/controller/loading_cont/laoding_controller.dart';
+import 'package:chess/controller/socket/socket.dart';
 import 'package:chess/models/friend_req_details.dart';
 import 'package:chess/models/user_detail_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -78,8 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
   onRefresh() async {
     await homeController.getAllUsers(loginAndSignUp.currentUserDetail!.token);
   }
-
-
 
   logout() {
     return showDialog(
@@ -263,7 +262,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               itemCount: searchUser.length,
                               itemBuilder: (_, i) {
                                 AllUsersDetails allUsersDetails = searchUser[i];
-                                return buildPlayerCard(allUsersDetails, i);
+                                return buildPlayerCard(
+                                    context, allUsersDetails, i);
                               }),
                         )),
                       ],
@@ -275,244 +275,45 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildPlayerCard(AllUsersDetails allUsersDetails, int i) {
+  Widget buildPlayerCard(
+      BuildContext context, AllUsersDetails allUsersDetails, int i) {
     // print(userDetails.id);
     // print(homeController.friendRequestList);
     return Padding(
-      padding: const EdgeInsets.all(5.0),
-      child: ListTile(
-        // onTap: () {
-        //   setState(() {
-        //     currentIndex = i;
-        //   });
-        // },
-        selected: allUsersDetails.userId == loginAndSignUp.opponentId.value &&
-                widget.gameIsRunning!
-            ? true
-            : false,
-        selectedColor: Colors.black,
-        selectedTileColor: green.withOpacity(0.2),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.r)),
-        contentPadding: EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
-        leading: CircleAvatar(
-          radius: 18.r,
-          // backgroundColor: green,
-          backgroundImage: AssetImage("assets/svg/7309681.jpg"),
-        ),
-        title: Text(allUsersDetails.userName!),
-        trailing: Obx(
-          () => homeController.checkFriendList(allUsersDetails.userId!)
-              ? Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              IconButton(
-                  onPressed: () {
-                    homeController.singleUserDetails =
-                        allUsersDetails;
-                    homeController
-                        .singleFriendReq(allUsersDetails.userId!);
-                    Get.to(()=>GameConfirmation(
-                      allUsersDetails: allUsersDetails,
-                    ));
-                  },
-                  icon: Icon(Icons.check_circle_outline,
-                      color: Colors.black)),
-              IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.cancel_outlined,
-                    color: Colors.black,
-                  ))
-            ],
-          )
-              : GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: SizedBox(
-                      width: double.infinity,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                              "Send Request to ${allUsersDetails.userName}"),
-                          verticalHeight(height: 10.h),
-                          Text(
-                            "Choose Color",
-                            style: black50014,
-                          ),
-                          verticalHeight(height: 5.h),
-                          Obx(() => Container(
-                            margin: EdgeInsets.only(left: 5.w),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius:
-                                BorderRadius.circular(10.r),
-                                border: Border.all(
-                                    color: Colors.black)),
-                            height: 40.h,
-                            // width: 150.w,
-                            child: Row(children: [
-                              Expanded(
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      confrmAndColorController
-                                          .selectedColorIndex
-                                          .value = 1;
-                                      confrmAndColorController
-                                          .selectedColor("black");
-                                    },
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: confrmAndColorController
-                                            .selectedColorIndex
-                                            .value ==
-                                            1
-                                            ? grey
-                                            : null,
-                                        borderRadius:
-                                        BorderRadius.only(
-                                            topLeft:
-                                            Radius.circular(
-                                                10.r),
-                                            bottomLeft:
-                                            Radius.circular(
-                                                10.r)),
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: Text(
-                                        "Black",
-                                        style: black50012,
-                                        overflow:
-                                        TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  )),
-                              Container(
-                                height: double.infinity,
-                                width: 1.w,
-                                child: null,
-                                color: Colors.black,
-                              ),
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    confrmAndColorController
-                                        .selectedColorIndex
-                                        .value = 2;
-                                    confrmAndColorController
-                                        .selectedColor("white");
-                                  },
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    decoration: BoxDecoration(
-                                      color: confrmAndColorController
-                                          .selectedColorIndex
-                                          .value ==
-                                          2
-                                          ? grey
-                                          : null,
-                                      borderRadius: BorderRadius
-                                          .only(
-                                          topRight:
-                                          Radius.circular(
-                                              10.r),
-                                          bottomRight:
-                                          Radius.circular(
-                                              10.r)),
-                                    ),
-                                    child: Text(
-                                      "White",
-                                      style: black50012,
-                                      overflow:
-                                      TextOverflow.ellipsis,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ]),
-                          )),
-                          verticalHeight(height: 10.h),
-                          Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: timeTileList
-                                  .asMap()
-                                  .entries
-                                  .map((e) => TimeTile(
-                                title: e.value["1"],
-                                secondPartOne: e.value["2"],
-                                secondPartTwo: e.value["3"],
-                                secondPartThree: e.value["4"],
-                                callback: () {
-                                  confrmAndColorController
-                                      .selectedTimingTile(
-                                      e.key);
-                                  confrmAndColorController
-                                      .selectedTiming(
-                                      int.parse(
-                                          e.value["2"]));
-                                  print(
-                                      confrmAndColorController
-                                          .selectedTiming
-                                          .value);
-                                },
-                                index: e.key,
-                              ))
-                                  .toList()),
-                          verticalHeight(height: 5.h),
-                          Obx(() => confrmAndColorController
-                              .selectedColor.isEmpty
-                              ? Text("Please Select Color",style: TextStyle(color: Colors.red,),textAlign: TextAlign.center,)
-                              : SizedBox())
-                        ],
-                      ),
-                    ),
-                    actions: [
-                      MaterialButton(
-                          child: Text("Cancel"),
-                          onPressed: (){
-                            Get.back();
-                            confrmAndColorController
-                                .selectedColor("");
-                            confrmAndColorController
-                                .selectedColorIndex(0);
-
-                          }),
-                      Obx(() => MaterialButton(
-                          onPressed: confrmAndColorController
-                              .selectedColor.isNotEmpty
-                              ? () {
-                            sendRequest(allUsersDetails);
-                          }
-                              : null,
-                          child: Text(
-                            "Send",
-                            style: TextStyle(
-                                color: confrmAndColorController
-                                    .selectedColor.isEmpty
-                                    ? Colors.grey
-                                    : null),
-                          ))),
-                    ],
-                  );
-                },
-              );
-            },
-            child: SizedBox(
-                height: 20.h,
-                width: 20.w,
-                child: SvgPicture.asset(
-                  "assets/svg/blackKing.svg",
-                  fit: BoxFit.cover,
-                )),
-          ),
-        ),
-      ),
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 10.w),
+      child: Obx(() => ListTile(
+            onTap: homeController.checkFriendList(allUsersDetails.userId!) == 2
+                ? () {
+                    FriendRequestDetail? data =
+                        homeController.singleFriendReq(allUsersDetails.userId!);
+                    // print("for player 1 ${data!.userId}");
+                    // print("for player 2 ${data!.playerId}");
+                    // Get.to(() => StartGame(
+                    //       color: "black",
+                    //       playingTime: "10",
+                    //       player1ID: "64919c6cf74f3930eed7083d",
+                    //       player2ID: "64919c91f74f3930eed70895",
+                    //       gameId: "64919d35f74f3930eed70a31",
+                    //       opponentName: allUsersDetails.userName,
+                    //     ));
+                  }
+                : null,
+            tileColor:
+                homeController.checkFriendList(allUsersDetails.userId!) == 2
+                    ? green.withOpacity(0.5)
+                    : null,
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.r)),
+            contentPadding:
+                EdgeInsets.symmetric(vertical: 20.h, horizontal: 15.w),
+            leading: CircleAvatar(
+              radius: 18.r,
+              // backgroundColor: green,
+              backgroundImage: AssetImage("assets/svg/7309681.jpg"),
+            ),
+            title: Text(allUsersDetails.userName!),
+            trailing: trailingTile(allUsersDetails),
+          )),
     );
   }
 
@@ -543,5 +344,229 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ],
     );
+  }
+
+  Widget trailingTile(AllUsersDetails allUsersDetails) {
+    return Obx(() {
+      switch (homeController.checkFriendList(allUsersDetails.userId!)) {
+        case 0:
+          return GestureDetector(
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: SizedBox(
+                      width: double.infinity,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text("Send Request to ${allUsersDetails.userName}"),
+                          verticalHeight(height: 10.h),
+                          Text(
+                            "Choose Color",
+                            style: black50014,
+                          ),
+                          verticalHeight(height: 5.h),
+                          Obx(() => Container(
+                                margin: EdgeInsets.only(left: 5.w),
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    border: Border.all(color: Colors.black)),
+                                height: 40.h,
+                                // width: 150.w,
+                                child: Row(children: [
+                                  Expanded(
+                                      child: GestureDetector(
+                                    onTap: () {
+                                      confrmAndColorController
+                                          .selectedColorIndex.value = 1;
+                                      confrmAndColorController
+                                          .selectedColor("black");
+                                    },
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        color: confrmAndColorController
+                                                    .selectedColorIndex.value ==
+                                                1
+                                            ? grey
+                                            : null,
+                                        borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(10.r),
+                                            bottomLeft: Radius.circular(10.r)),
+                                      ),
+                                      alignment: Alignment.center,
+                                      child: Text(
+                                        "Black",
+                                        style: black50012,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )),
+                                  Container(
+                                    height: double.infinity,
+                                    width: 1.w,
+                                    child: null,
+                                    color: Colors.black,
+                                  ),
+                                  Expanded(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        confrmAndColorController
+                                            .selectedColorIndex.value = 2;
+                                        confrmAndColorController
+                                            .selectedColor("white");
+                                      },
+                                      child: Container(
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          color: confrmAndColorController
+                                                      .selectedColorIndex
+                                                      .value ==
+                                                  2
+                                              ? grey
+                                              : null,
+                                          borderRadius: BorderRadius.only(
+                                              topRight: Radius.circular(10.r),
+                                              bottomRight:
+                                                  Radius.circular(10.r)),
+                                        ),
+                                        child: Text(
+                                          "White",
+                                          style: black50012,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ]),
+                              )),
+                          verticalHeight(height: 10.h),
+                          Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: timeTileList
+                                  .asMap()
+                                  .entries
+                                  .map((e) => TimeTile(
+                                        title: e.value["1"],
+                                        secondPartOne: e.value["2"],
+                                        secondPartTwo: e.value["3"],
+                                        secondPartThree: e.value["4"],
+                                        callback: () {
+                                          confrmAndColorController
+                                              .selectedTimingTile(e.key);
+                                          confrmAndColorController
+                                              .selectedTiming(
+                                                  int.parse(e.value["2"]));
+                                          print(confrmAndColorController
+                                              .selectedTiming.value);
+                                        },
+                                        index: e.key,
+                                      ))
+                                  .toList()),
+                          verticalHeight(height: 5.h),
+                          Obx(() =>
+                              confrmAndColorController.selectedColor.isEmpty
+                                  ? Text(
+                                      "Please Select Color",
+                                      style: TextStyle(
+                                        color: Colors.red,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : SizedBox())
+                        ],
+                      ),
+                    ),
+                    actions: [
+                      MaterialButton(
+                          child: Text("Cancel"),
+                          onPressed: () {
+                            Get.back();
+                            confrmAndColorController.selectedColor("");
+                            confrmAndColorController.selectedColorIndex(0);
+                          }),
+                      Obx(() => MaterialButton(
+                          onPressed:
+                              confrmAndColorController.selectedColor.isNotEmpty
+                                  ? () {
+                                      sendRequest(allUsersDetails);
+                                    }
+                                  : null,
+                          child: Text(
+                            "Send",
+                            style: TextStyle(
+                                color: confrmAndColorController
+                                        .selectedColor.isEmpty
+                                    ? Colors.grey
+                                    : null),
+                          ))),
+                    ],
+                  );
+                },
+              );
+            },
+            child: SizedBox(
+                height: 20.h,
+                width: 20.w,
+                child: SvgPicture.asset(
+                  "assets/svg/blackKing.svg",
+                  fit: BoxFit.cover,
+                )),
+          );
+        case 1:
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    homeController.singleUserDetails = allUsersDetails;
+                    homeController.singleFriendReq(allUsersDetails.userId!);
+                    Get.to(() => GameConfirmation(
+                          allUsersDetails: allUsersDetails,
+                        ));
+                  },
+                  icon: Icon(Icons.check_circle_outline, color: Colors.black)),
+              IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.cancel_outlined,
+                    color: Colors.black,
+                  ))
+            ],
+          );
+
+        case 2:
+          return SizedBox();
+          // final socketController = Get.put(SocketConnectionController());
+          // return Chip(label: Obx(() => Text(socketController.time.value)));
+          // return Row(
+          //   mainAxisSize: MainAxisSize.min,
+          //   children: [
+          //     IconButton(
+          //         onPressed: () {
+          //           homeController.singleUserDetails = allUsersDetails;
+          //           homeController.singleFriendReq(allUsersDetails.userId!);
+          //           Get.to(() => GameConfirmation(
+          //                 allUsersDetails: allUsersDetails,
+          //               ));
+          //           print(homeController.onePlayerReqDetail!.time);
+          //         },
+          //         icon: Icon(Icons.check_circle_outline, color: Colors.black)),
+          //     IconButton(
+          //         onPressed: () {},
+          //         icon: Icon(
+          //           Icons.cancel_outlined,
+          //           color: Colors.black,
+          //         ))
+          //   ],
+          // );
+        default:
+          return SizedBox();
+      }
+    });
   }
 }

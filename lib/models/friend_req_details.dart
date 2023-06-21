@@ -4,9 +4,10 @@ class FriendRequestDetail {
   String? colour;
   String? time;
   String? gameId;
+  String? playerId;
 
   FriendRequestDetail(
-      {this.userId, this.status, this.colour, this.time, this.gameId});
+      {this.userId, this.status, this.colour, this.time, this.gameId,this.playerId});
 
   factory FriendRequestDetail.fromJson(Map<String, dynamic> json) {
     return FriendRequestDetail(
@@ -15,6 +16,7 @@ class FriendRequestDetail {
       colour: json['colour'],
       time: json['time'],
       gameId: json['gameId'],
+      playerId: json['playerId'],
     );
   }
 
@@ -25,6 +27,7 @@ class FriendRequestDetail {
     data['colour'] = colour;
     data['time'] = time;
     data['gameId'] = gameId;
+    data['playerId'] = playerId;
     return data;
   }
 }

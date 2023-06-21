@@ -517,6 +517,7 @@ class _GameBoardState extends State<GameBoard> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<dynamic> list = snapshot.data!;
+              print(list.toString());
               return ListView.builder(
                   shrinkWrap: true,
                   itemCount: list.length,

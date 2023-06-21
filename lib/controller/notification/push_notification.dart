@@ -36,7 +36,7 @@ class PushNotification extends GetxController {
         try {
           if (payload != null) {
             var m = jsonDecode(payload.payload!);
-            log("payload------------------------------------------------------------------------------------------------------${m.toString()}");
+            // log("payload------------------------------------------------------------------------------------------------------${m.toString()}");
             // log("payload -------------======================== ${payload.payload!.toString()}");
             switch (m["screen"]) {
               case 1:

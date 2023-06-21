@@ -28,3 +28,9 @@ import '../../api/api_constant.dart';
 //   }
 //
 // }
+
+
+
+//
+// () => homeController.checkFriendList(allUsersDetails.userId!)
+//     ?

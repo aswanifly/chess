@@ -11,8 +11,6 @@ import '../../models/user_detail_model.dart';
 import 'login_signup_api.dart';
 
 class HomeController extends GetxController {
-
-
   RxList<AllUsersDetails> allUsers = <AllUsersDetails>[].obs;
   RxList<FriendRequestDetail> friendRequestList = <FriendRequestDetail>[].obs;
   RxList dummyFriend = [].obs; //data dega
@@ -26,7 +24,6 @@ class HomeController extends GetxController {
 
   @override
   void onInit() async {
-
     try {
       Timer.periodic(Duration(seconds: 2), (timer) async {
         friendRequestList.value = await friendRequest();
@@ -36,7 +33,6 @@ class HomeController extends GetxController {
     }
     super.onInit();
   }
-
 
   getAllUsers(String token) async {
     String url = GET_ALL_USER;
@@ -54,21 +50,17 @@ class HomeController extends GetxController {
 
     Map<String, dynamic> data = await ApiHelper()
         .apiTypeGet(url, loginSignCont.currentUserDetail!.token);
-    print(data["list"]);
+    // print(data["list"]);
     List<FriendRequestDetail> allReq = [];
-    for(int i =0;i< data["list"].length;i++){
+    for (int i = 0; i < data["list"].length; i++) {
       allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
     }
     return allReq;
   }
 
-  Future sendFriendRequest(String id,String color,String time) async {
+  Future sendFriendRequest(String id, String color, String time) async {
     String url = SEND_FRIEND_REQ;
-    var jsonBody = {
-      "reciverId": id,
-      "colour": color,
-      "time": time
-    };
+    var jsonBody = {"reciverId": id, "colour": color, "time": time};
     print(jsonBody);
     try {
       Map<String, dynamic> data = await ApiHelper().apiType(
@@ -90,20 +82,31 @@ class HomeController extends GetxController {
     });
   }
 
-  bool checkFriendList(String userId){
-    for(var i in friendRequestList){
-      if(i.userId == userId){
-        return true;
+  int checkFriendList(String userId) {
+    // 0 -  send friend request // 1 - request not accepted // 2 - request accepted
+    int status = 0;
+    for (var i in friendRequestList) {
+      if (i.userId == userId && i.status == 1) {
+        status = 1;
+
+        /// request not accepted
+      } else if (i.userId == userId && i.status == 2) {
+        status = 2;
+
+        ///request accepted
+      } else {
+        status = 0;
       }
     }
-    return false;
+    return status;
   }
 
-   FriendRequestDetail? singleFriendReq(String userId){
-    for(var i in friendRequestList){
-      if(i.userId== userId){
+  FriendRequestDetail? singleFriendReq(String userId) {
+    for (var i in friendRequestList) {
+      if (i.userId == userId) {
         onePlayerReqDetail = i;
         playingTime(i.time);
+        print(i.time);
         return i;
       }
     }

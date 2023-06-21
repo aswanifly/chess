@@ -11,25 +11,37 @@ import '../../controller/notification/push_notification.dart';
 import '../../exports.dart';
 import '../../models/all_users_details.dart';
 
-class GameConfirmation extends StatelessWidget {
+class GameConfirmation extends StatefulWidget {
   final AllUsersDetails allUsersDetails;
 
-  GameConfirmation({Key? key, required this.allUsersDetails}) : super(key: key);
+  const GameConfirmation({Key? key, required this.allUsersDetails}) : super(key: key);
 
+  @override
+  State<GameConfirmation> createState() => _GameConfirmationState();
+}
+
+class _GameConfirmationState extends State<GameConfirmation> {
   final loginSignCont = Get.put(LoginAndSignUp());
+
   final loadingController = Get.put(LoadingController());
+
   final confirmRequestCont = Get.put(ConfirmController());
+
   final HomeController homeController = Get.find();
+
   final pushNotification = Get.put(PushNotification());
+
   final socketController = Get.put(SocketConnectionController());
+
   String? player1ID;
+
   String? player2ID;
 
   acceptRequest() async {
     try {
       loadingController.isLoading(true);
       Map<String, dynamic> data =
-          await confirmRequestCont.confirmRequest(allUsersDetails.userId!);
+          await confirmRequestCont.confirmRequest(widget.allUsersDetails.userId!);
       print(" game confirmation ------++++++25 ${data.toString()}");
       player1ID =data["playerOne"];
       player2ID =data["playerTwo"];
@@ -37,7 +49,7 @@ class GameConfirmation extends StatelessWidget {
       print(player2ID);
 
       String token =
-          await pushNotification.getUserTokenDB(allUsersDetails.userId!);
+          await pushNotification.getUserTokenDB(widget.allUsersDetails.userId!);
 
       Map body = {
         "senderName": loginSignCont.currentUserDetail!.userName,
@@ -49,10 +61,11 @@ class GameConfirmation extends StatelessWidget {
         "player1UserId": player1ID,
         "player2UserId": player2ID,
       };
+      print(body.toString());
       pushNotification.sendPushMessage(token, body, "Game Invitation");
       Get.off(
         () => StartGame(
-          opponentName: allUsersDetails.userName!,
+          opponentName: widget.allUsersDetails.userName!,
           gameId: data["GmageId"],
           color: homeController.onePlayerReqDetail!.colour == "black"
               ? "white"
@@ -102,12 +115,12 @@ class GameConfirmation extends StatelessWidget {
               children: [
                 dpAndName(loginSignCont.currentUserDetail!.userName,
                     "assets/svg/7309681.jpg"),
-                dpAndName(allUsersDetails.userName!, "assets/svg/7309667.jpg")
+                dpAndName(widget.allUsersDetails.userName!, "assets/svg/7309667.jpg")
               ],
             ),
             verticalHeight(height: 25.h),
             Text(
-              "Accepted invitation of ${allUsersDetails.userName}",
+              "Accepted invitation of ${widget.allUsersDetails.userName}",
               style: black50014,
             ),
             Text(
