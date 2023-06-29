@@ -24,7 +24,7 @@ const String CONFIRM_REQUEST = "/confirmrequest";
 const String SELECT_COLOR = "";
 
 //start and end time
-const String START_TIME = "";
+const String START_TIME = "/starttime/";
 const String END_TIME = "";
 
 //moves

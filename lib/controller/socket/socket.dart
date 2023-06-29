@@ -6,6 +6,7 @@ import 'package:chess/controller/api_service/login_signup_api.dart';
 import 'package:chess/models/player.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 import '../api_service/game_controller.dart';
 
@@ -22,9 +23,13 @@ class SocketConnectionController extends GetxController {
   Timer? timer;
 
   Duration duration = Duration();
+  Duration duration2 = Duration();
   RxString time = '00.00'.obs;
+  RxString time2 = '00.00'.obs;
   RxBool gameStarted = false.obs;
   RxInt second = 0.obs;
+  RxInt second2 = 0.obs;
+  RxInt timeDiff = 0.obs;
 
   @override
   void onInit() {
@@ -81,14 +86,29 @@ class SocketConnectionController extends GetxController {
 
   startTimer() {
     const addSecond = 1;
+    gameController.getGameStartTime();
     timer = Timer.periodic(Duration(seconds: 1), (Timer timer) {
       second.value = duration.inSeconds - addSecond;
+      var currentTime = DateTime.now();
+      print("Game Start time : ${gameController.gameStartTime.value}");
+      try{
+        var dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(gameController.gameStartTime.value).add(Duration(hours: 5, minutes: 30));
+        print("Date To Millis: ${(dateFormat.millisecondsSinceEpoch)/1000}");
+        var timeDiff = currentTime.difference(dateFormat);
+        print("Game Start time : ${gameController.gameStartTime.value}, Current Time: ${currentTime}, diff:${timeDiff}, diff in sec:${timeDiff.inSeconds}, duration:${duration.inSeconds-timeDiff.inSeconds}");
+        second2.value = (duration.inSeconds+1) - timeDiff.inSeconds;
+      } on Exception catch(exception){
+        print(exception);
+      }
       if (second.value < 0) {
         timer.cancel();
       } else {
         duration = Duration(seconds: second.value);
+        duration2 = Duration(seconds: second2.value);
         time.value =
             "${duration.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration.inSeconds.remainder(60).toString().padLeft(2, "0")}";
+        time2.value =
+            "${duration2.inMinutes.remainder(60).toString().padLeft(2, "0")}:${duration2.inSeconds.remainder(60).toString().padLeft(2, "0")}";
         update();
       }
     });

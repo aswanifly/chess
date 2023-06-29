@@ -37,6 +37,7 @@ class GameController extends GetxController {
       TextEditingController().obs;
   final loginController = Get.put(LoginAndSignUp());
   final colorController = Get.put(ConfirmController());
+  RxString gameStartTime = "".obs;
 
   void pieceMove() {
     switch (currentPiece.value) {
@@ -193,6 +194,22 @@ class GameController extends GetxController {
           token: loginController.currentUserDetail!.token,
           methodType: 'POST');
       buttonsList.clear();
+    } catch (e) {
+      print(e);
+    }
+  }
+
+  getGameStartTime() async {
+    String url = START_TIME + gameId.value; // gameId.value; // "649559f38c80e49cb9ba4f21"; // 649a815ead10e3f00d8e7c81 // 649d33423833d765361201de
+    final Map<String, String> jsonBody= {};
+    try {
+      Map<String, dynamic> res = await ApiHelper().apiType(url: url,
+          jsonBody: jsonBody,
+          token: loginController.currentUserDetail!.token,
+          methodType: 'PUT');
+      print(res.toString());
+      print("Start Time From API: "+res["startTime"]);
+      gameStartTime.value = res["startTime"];
     } catch (e) {
       print(e);
     }

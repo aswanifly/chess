@@ -285,6 +285,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           gameId: data.gameId,
                           opponentName: allUsersDetails.userName,
                         ));
+              print("${data?.colour} ${data?.time} ${data?.gameId}");
                   }
                 : null,
             tileColor:

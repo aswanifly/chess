@@ -223,11 +223,11 @@ class _GameBoardState extends State<GameBoard> {
                 // controller.endTime.value = "$minute:$second";
                 // Get.to(() => MovementTracker());
               },
-              child: Text(
+              child: Obx(() => Text(
                 // "${socketController.isActive}",
-                "End time",
+                socketController.time2.value,
                 style: black50015,
-              ),
+              )),
             )
           ]),
 
