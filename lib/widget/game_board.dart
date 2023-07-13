@@ -190,6 +190,7 @@ class _GameBoardState extends State<GameBoard> {
                           socketController.sendMessage(
                               "gameID", "userId", "mm1", true);
                           socketController.gameStarted(true);
+                          chessGameStarted(true);
                         },
                         child: Text(
                           "Start Time",
@@ -223,11 +224,11 @@ class _GameBoardState extends State<GameBoard> {
                 // controller.endTime.value = "$minute:$second";
                 // Get.to(() => MovementTracker());
               },
-              child: Obx(() => Text(
+              child: Text(
                 // "${socketController.isActive}",
-                socketController.time2.value,
+                "End time",
                 style: black50015,
-              )),
+              ),
             )
           ]),
 

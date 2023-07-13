@@ -1,3 +1,5 @@
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+
 Map chessPieces = {
   "black": [
     {"name": "black pawn", "imagePath": "assets/black/Pawn-black.svg"},
@@ -39,3 +41,5 @@ Map pieceColorPath = {
   "black" :"assets/svg/blackKing.svg",
   "white" : "assets/svg/whiteKing.svg"
 };
+
+RxBool chessGameStarted = false.obs;

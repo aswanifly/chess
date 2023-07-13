@@ -4,6 +4,7 @@
 
 // const String baseUrl = "http://10.0.2.2:7000";
 const String baseUrl = "http://15.207.114.155:7000";
+const String SOCKET_BASE_URL = "http://15.207.114.155:9000";
 
 //login and signup api
 const String LOGIN = "/userLogin";
