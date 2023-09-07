@@ -64,7 +64,8 @@ class _GameBoardState extends State<GameBoard> {
   //   }
   // }
 
-  Future<void> confirmMoves(String time) {
+  Future<void> confirmMoves() {
+    controller.pieceMove();
     return showDialog(
         context: context,
         builder: (context) {
@@ -102,16 +103,22 @@ class _GameBoardState extends State<GameBoard> {
               IgnorePointer(
                 ignoring: controller.checkMove(),
                 child: TextButton(
-                  child: Text('Confirm',
-                      style: TextStyle(
-                          color: controller.checkMove() ? Colors.grey : green)),
-                  onPressed: () {
+                  child: Text(
+                    'Confirm',
+                    style: TextStyle(
+                        color: controller.checkMove() ? Colors.grey : green),
+                  ),
+                  onPressed: () async {
                     // controller.addToLocalStorage(
                     //   Moves(
                     //       moveTime: time,
                     //       playerMove: controller.displayMoves.value),
                     // );
-                    // Get.back();
+                    gameController.moveList.add(Moves(
+                        moveTime: "",
+                        playerMove: controller.displayMoves.value));
+                    await sendMove();
+                    Get.back();
                   },
                 ),
               ),
@@ -126,9 +133,9 @@ class _GameBoardState extends State<GameBoard> {
   }
 
   sendMove() async {
-    socketController.sendMessage(
-        "gameID", "userId", "move", !socketController.isActive.value);
-    controller.pieceMove();
+    // socketController.sendMessage(
+    //     "gameID", "userId", "move", !socketController.isActive.value);
+    // controller.pieceMove();
     await controller.sendMove(socketController.time.value);
   }
 
@@ -166,7 +173,8 @@ class _GameBoardState extends State<GameBoard> {
       child: Column(
         children: [
           ///play Button
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          /// start button, timer, end time button
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
             // isRunning
             //     ? GestureDetector(
             //         onTap: () {
@@ -182,32 +190,35 @@ class _GameBoardState extends State<GameBoard> {
             //           style: black50015,
             //         ),
             //       ):
-            Obx(() => loginAndSignUp.currentUserDetail!.id ==
-                    gameController.player1ID.value
-                ? socketController.gameStarted.isFalse
-                    ? GestureDetector(
-                        onTap: () {
-                          socketController.sendMessage(
-                              "gameID", "userId", "mm1", true);
-                          socketController.gameStarted(true);
-                          chessGameStarted(true);
-                        },
-                        child: Text(
-                          "Start Time",
-                          style: black50015,
-                        ),
-                      )
-                    : SizedBox()
-                : SizedBox()),
-            MaterialButton(
-                onPressed: () {},
-                color: violet,
-                padding: EdgeInsets.symmetric(horizontal: 46.w),
-                child: Obx(() => Text(
-                      socketController.time.value,
-                      style: white50016,
-                    ))),
-            GestureDetector(
+
+            ///start game button
+//             Obx(() => loginAndSignUp.currentUserDetail!.id ==
+//                     gameController.player1ID.value
+//                 ? socketController.gameStarted.isFalse
+//                     ? GestureDetector(
+//                         onTap: () {
+//                           socketController.sendMessage(
+//                               "gameID", "userId", "mm1", true);
+//                           socketController.gameStarted(true);
+//                           chessGameStarted(true);
+//                         },
+//                         child: Text(
+//                           "Start Time",
+//                           style: black50015,
+//                         ),
+//                       )
+//                     : SizedBox()
+//                 : SizedBox()),
+            ///timer section->
+//             MaterialButton(
+//                 onPressed: () {},
+//                 color: violet,
+//                 padding: EdgeInsets.symmetric(horizontal: 46.w),
+//                 child: Obx(() => Text(
+//                       socketController.time.value,
+//                       style: white50016,
+//                     ))),
+            InkWell(
               onTap: () {
                 // if (!startGame) {
                 //   Get.showSnackbar(GetSnackBar(
@@ -222,7 +233,7 @@ class _GameBoardState extends State<GameBoard> {
                 //   });
                 // }
                 // controller.endTime.value = "$minute:$second";
-                // Get.to(() => MovementTracker());
+                Get.to(() => MovementTracker());
               },
               child: Text(
                 // "${socketController.isActive}",
@@ -277,67 +288,106 @@ class _GameBoardState extends State<GameBoard> {
   }
 
   Widget continueButton(BuildContext context) {
-    return Obx(() {
-      if (loginAndSignUp.currentUserDetail!.id ==
-              gameController.player1ID.value &&
-          socketController.isActive.isFalse) {
-        return IgnorePointer(
-          ignoring: true,
-          child: GestureDetector(
-              onTap: sendMove,
-              // onTap: () {
-              //   // if (!timerStarted || controller.buttonsList.isEmpty) {
-              //   //   ScaffoldMessenger.of(context).clearSnackBars();
-              //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              //   //       content: Text("Timer not running or no Move")));
-              //   //   return;
-              //   // }
-              //   aaa
-              //   controller.pieceMove();
-              //   confirmMoves("$minute:$second");
-              //   print(controller.displayMoves.value);
-              // },
-              child: button(context, "Continue", Colors.grey, TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w500))),
-        );
-      } else if (loginAndSignUp.currentUserDetail!.id ==
-              gameController.player2ID.value &&
-          socketController.isActive.isTrue) {
-        return IgnorePointer(
-          ignoring: true,
-          child: GestureDetector(
-              onTap: sendMove,
-              // onTap: () {
-              //   // if (!timerStarted || controller.buttonsList.isEmpty) {
-              //   //   ScaffoldMessenger.of(context).clearSnackBars();
-              //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              //   //       content: Text("Timer not running or no Move")));
-              //   //   return;
-              //   // }
-              //   aaa
-              //   controller.pieceMove();
-              //   confirmMoves("$minute:$second");
-              //   print(controller.displayMoves.value);
-              // },
-              child: button(context, "Continue", Colors.grey, TextStyle(color: Colors.grey,fontSize: 16,fontWeight: FontWeight.w500))),
-        );
-      } else {
-        return GestureDetector(
-            onTap: sendMove,
-            // onTap: () {
-            //   // if (!timerStarted || controller.buttonsList.isEmpty) {
-            //   //   ScaffoldMessenger.of(context).clearSnackBars();
-            //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            //   //       content: Text("Timer not running or no Move")));
-            //   //   return;
-            //   // }
-            //   aaa
-            //   controller.pieceMove();
-            //   confirmMoves("$minute:$second");
-            //   print(controller.displayMoves.value);
-            // },
-            child: button(context, "Continue", green, green50016));
-      }
-    });
+    return GestureDetector(
+      onTap: confirmMoves,
+      // onTap: () {
+      //   // if (!timerStarted || controller.buttonsList.isEmpty) {
+      //   //   ScaffoldMessenger.of(context).clearSnackBars();
+      //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   //       content: Text("Timer not running or no Move")));
+      //   //   return;
+      //   // }
+      //
+      //   controller.pieceMove();
+      //   confirmMoves("$minute:$second");
+      //   print(controller.displayMoves.value);
+      // },
+      child: button(
+        context,
+        "Continue",
+        green,
+        green50016,
+      ),
+    );
+
+    ///obx widget of continue button
+    // return Obx(() {
+    //   if (loginAndSignUp.currentUserDetail!.id ==
+    //           gameController.player1ID.value &&
+    //       socketController.isActive.isFalse) {
+    //     return IgnorePointer(
+    //       ignoring: true,
+    //       child: GestureDetector(
+    //         onTap: sendMove,
+    //         // onTap: () {
+    //         //   // if (!timerStarted || controller.buttonsList.isEmpty) {
+    //         //   //   ScaffoldMessenger.of(context).clearSnackBars();
+    //         //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //         //   //       content: Text("Timer not running or no Move")));
+    //         //   //   return;
+    //         //   // }
+    //         //   aaa
+    //         //   controller.pieceMove();
+    //        //   confirmMoves("$minute:$second");
+    //         //   print(controller.displayMoves.value);
+    //         // },
+    //         child: button(
+    //           context,
+    //           "Continue",
+    //           Colors.grey,
+    //           TextStyle(
+    //               color: Colors.grey,
+    //               fontSize: 16,
+    //               fontWeight: FontWeight.w500),
+    //         ),
+    //       ),
+    //     );
+    //   } else if (loginAndSignUp.currentUserDetail!.id ==
+    //           gameController.player2ID.value &&
+    //       socketController.isActive.isTrue) {
+    //     return IgnorePointer(
+    //       ignoring: true,
+    //       child: GestureDetector(
+    //           onTap: sendMove,
+    //           // onTap: () {
+    //           //   // if (!timerStarted || controller.buttonsList.isEmpty) {
+    //           //   //   ScaffoldMessenger.of(context).clearSnackBars();
+    //           //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //           //   //       content: Text("Timer not running or no Move")));
+    //           //   //   return;
+    //           //   // }
+    //           //   aaa
+    //           //   controller.pieceMove();
+    //           //   confirmMoves("$minute:$second");
+    //           //   print(controller.displayMoves.value);
+    //           // },
+    //           child: button(
+    //               context,
+    //               "Continue",
+    //               Colors.grey,
+    //               TextStyle(
+    //                   color: Colors.grey,
+    //                   fontSize: 16,
+    //                   fontWeight: FontWeight.w500))),
+    //     );
+    //   } else {
+    //     return GestureDetector(
+    //         onTap: sendMove,
+    //         // onTap: () {
+    //         //   // if (!timerStarted || controller.buttonsList.isEmpty) {
+    //         //   //   ScaffoldMessenger.of(context).clearSnackBars();
+    //         //   //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    //         //   //       content: Text("Timer not running or no Move")));
+    //         //   //   return;
+    //         //   // }
+    //         //   aaa
+    //         //   controller.pieceMove();
+    //   confirmMoves("$minute:$second");
+    //         //   print(controller.displayMoves.value);
+    //         // },
+    //         child: button(context, "Continue", green, green50016));
+    //   }
+    // });
   }
 
   Widget buildPieces() {
@@ -378,134 +428,135 @@ class _GameBoardState extends State<GameBoard> {
   }
 
   Widget buildSpecialKeys() {
-    return Obx(() => Stack(
-          children: [
-            SizedBox(
-              height: 45.h,
-              width: double.infinity,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(13.r)),
-                child: GridView.builder(
-                    physics: NeverScrollableScrollPhysics(),
-                    itemCount: symbols.length,
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 6),
-                    itemBuilder: (_, i) {
-                      return Obx(() => GestureDetector(
-                            onTap: () {
-                              controller.buttonsList.add(symbols[i]);
-                            },
-                            child: Center(
-                              child: Container(
-                                  margin: EdgeInsets.only(bottom: 15.h),
-                                  alignment: Alignment.center,
-                                  height: 30.h,
-                                  width: 30.h,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: controller.buttonsList
-                                              .contains(symbols[i])
-                                          ? lightViolet
-                                          : null),
-                                  child: Text(
-                                    symbols[i],
-                                    style: black50012,
-                                  )),
-                            ),
-                          ));
-                    }),
-              ),
-            ),
-            if (socketController.second.value < 0)
-              Container(
-                height: 48.h,
-                width: double.infinity,
-                color: Colors.black45,
-                child: Center(child: Text("Time Over")),
-              )
-          ],
-        ));
+    ///obx will check for timeout
+    // return Obx(() => );
+    return Stack(
+      children: [
+        SizedBox(
+          height: 45.h,
+          width: double.infinity,
+          child: Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(13.r)),
+            child: GridView.builder(
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: symbols.length,
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 6),
+                itemBuilder: (_, i) {
+                  return Obx(() => GestureDetector(
+                        onTap: () {
+                          controller.buttonsList.add(symbols[i]);
+                        },
+                        child: Center(
+                          child: Container(
+                              margin: EdgeInsets.only(bottom: 15.h),
+                              alignment: Alignment.center,
+                              height: 30.h,
+                              width: 30.h,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  color: controller.buttonsList
+                                          .contains(symbols[i])
+                                      ? lightViolet
+                                      : null),
+                              child: Text(
+                                symbols[i],
+                                style: black50012,
+                              )),
+                        ),
+                      ));
+                }),
+          ),
+        ),
+        // if (socketController.second.value < 0)
+        //   Container(
+        //     height: 48.h,
+        //     width: double.infinity,
+        //     color: Colors.black45,
+        //     child: Center(child: Text("Time Over")),
+        //   )
+      ],
+    );
   }
 
   Widget gameKeyBoard() {
-    return Obx(() => Stack(
-          children: [
-            SizedBox(
-              height: 185.h,
-              width: double.infinity,
-              child: ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
-                  itemCount: alphaAndNum.length,
-                  itemBuilder: (_, i) {
-                    List listIndex = alphaAndNum[i];
-                    return SizedBox(
-                        height: 45.h,
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.r)),
-                          child: GridView.builder(
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: listIndex.length,
-                              gridDelegate:
-                                  const SliverGridDelegateWithFixedCrossAxisCount(
-                                      crossAxisCount: 4),
-                              itemBuilder: (_, i) {
-                                return Obx(() => GestureDetector(
-                                      onTap: () {
-                                        // if (!timerStarted) {
-                                        //   ScaffoldMessenger.of(context)
-                                        //       .clearSnackBars();
-                                        //   ScaffoldMessenger.of(context).showSnackBar(
-                                        //       SnackBar(
-                                        //           content: Text("Please start timer")));
-                                        //   return;
-                                        // }
-                                        // --------------up work
+    //obx will keep on checking for timeout
+    // return Obx(() => );
+    return Stack(
+      children: [
+        SizedBox(
+          height: 185.h,
+          width: double.infinity,
+          child: ListView.builder(
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: alphaAndNum.length,
+              itemBuilder: (_, i) {
+                List listIndex = alphaAndNum[i];
+                return SizedBox(
+                    height: 45.h,
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.r)),
+                      child: GridView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: listIndex.length,
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 4),
+                          itemBuilder: (_, i) {
+                            return Obx(() => GestureDetector(
+                                  onTap: () {
+                                    // if (!timerStarted) {
+                                    //   ScaffoldMessenger.of(context)
+                                    //       .clearSnackBars();
+                                    //   ScaffoldMessenger.of(context).showSnackBar(
+                                    //       SnackBar(
+                                    //           content: Text("Please start timer")));
+                                    //   return;
+                                    // }
+                                    // --------------up work
 
-                                        // if (controller.buttonsList
-                                        //     .contains(listIndex[i])) {
-                                        //   controller.buttonsList.remove(listIndex[i]);
-                                        // } else {
-                                        //   controller.buttonsList.add(listIndex[i]);
-                                        // }
-                                        controller.buttonsList
-                                            .add(listIndex[i]);
-                                      },
-                                      child: Center(
-                                        child: Container(
-                                            margin:
-                                                EdgeInsets.only(bottom: 38.h),
-                                            alignment: Alignment.center,
-                                            height: 30.h,
-                                            width: 30.h,
-                                            decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(18.r),
-                                                color: controller.buttonsList
-                                                        .contains(listIndex[i])
-                                                    ? lightViolet
-                                                    : null),
-                                            child: Text(
-                                              listIndex[i],
-                                              style: black50014,
-                                            )),
-                                      ),
-                                    ));
-                              }),
-                        ));
-                  }),
-            ),
-            if (socketController.second.value < 0)
-              Container(
-                height: 185.h,
-                width: double.infinity,
-                color: Colors.black45,
-                child: Center(child: Text("Time Over")),
-              )
-          ],
-        ));
+                                    // if (controller.buttonsList
+                                    //     .contains(listIndex[i])) {
+                                    //   controller.buttonsList.remove(listIndex[i]);
+                                    // } else {
+                                    //   controller.buttonsList.add(listIndex[i]);
+                                    // }
+                                    controller.buttonsList.add(listIndex[i]);
+                                  },
+                                  child: Center(
+                                    child: Container(
+                                        margin: EdgeInsets.only(bottom: 38.h),
+                                        alignment: Alignment.center,
+                                        height: 30.h,
+                                        width: 30.h,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(18.r),
+                                            color: controller.buttonsList
+                                                    .contains(listIndex[i])
+                                                ? lightViolet
+                                                : null),
+                                        child: Text(
+                                          listIndex[i],
+                                          style: black50014,
+                                        )),
+                                  ),
+                                ));
+                          }),
+                    ));
+              }),
+        ),
+        // if (socketController.second.value < 0)
+        //   Container(
+        //     height: 185.h,
+        //     width: double.infinity,
+        //     color: Colors.black45,
+        //     child: Center(child: Text("Time Over")),
+        //   )
+      ],
+    );
   }
 
   Expanded buildAllMovesDisplay() {

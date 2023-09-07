@@ -47,7 +47,7 @@ class MovementTracker extends StatelessWidget {
                         thickness: 1,
                         indent: 0,
                       ),
-                      timeSection(context),
+                      // timeSection(context),
                       verticalHeight(height: 10.h),
                       allMovementList(),
                       verticalHeight(height: 50.h),

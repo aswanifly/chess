@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:chess/api/api_constant.dart';
 import 'package:chess/models/friend_req_details.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 import '../../api/api_helper.dart';
 import '../../models/all_users_details.dart';
@@ -50,7 +51,7 @@ class HomeController extends GetxController {
 
     Map<String, dynamic> data = await ApiHelper()
         .apiTypeGet(url, loginSignCont.currentUserDetail!.token);
-    print(data["list"]);
+    Logger().i(data["list"]);
     List<FriendRequestDetail> allReq = [];
     for (int i = 0; i < data["list"].length; i++) {
       allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
@@ -61,7 +62,7 @@ class HomeController extends GetxController {
   Future sendFriendRequest(String id, String color, String time) async {
     String url = SEND_FRIEND_REQ;
     var jsonBody = {"reciverId": id, "colour": color, "time": time};
-    print(jsonBody);
+    Logger().t(jsonBody);
     try {
       Map<String, dynamic> data = await ApiHelper().apiType(
           url: url,
@@ -69,7 +70,7 @@ class HomeController extends GetxController {
           token: loginSignCont.currentUserDetail!.token,
           methodType: 'POST');
       message.value = data["message"];
-      print(data);
+      Logger().i(data);
       return data;
     } catch (_) {
       rethrow;
@@ -106,6 +107,7 @@ class HomeController extends GetxController {
       if (i.userId == userId) {
         onePlayerReqDetail = i;
         playingTime(i.time);
+        Logger().e(i.userId);
         return i;
       }
     }

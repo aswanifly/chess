@@ -38,7 +38,7 @@ class SocketConnectionController extends GetxController {
     time("${homeController.playingTime.value}:00");
     duration = Duration(
         seconds: 0, minutes: int.parse(homeController.playingTime.value));
-   continueGame();
+   // continueGame();
     super.onInit();
   }
 

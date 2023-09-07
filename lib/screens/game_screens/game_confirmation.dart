@@ -1,10 +1,9 @@
 import 'package:chess/controller/api_service/home_controller.dart';
 import 'package:chess/controller/loading_cont/laoding_controller.dart';
-import 'package:chess/controller/socket/socket.dart';
-import 'package:chess/models/player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
 import '../../controller/api_service/confirm_controller.dart';
 import '../../controller/api_service/login_signup_api.dart';
 import '../../controller/notification/push_notification.dart';
@@ -31,7 +30,7 @@ class _GameConfirmationState extends State<GameConfirmation> {
 
   final pushNotification = Get.put(PushNotification());
 
-  final socketController = Get.put(SocketConnectionController());
+  // final socketController = Get.put(SocketConnectionController());
 
   String? player1ID;
 
