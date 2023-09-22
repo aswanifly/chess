@@ -4,6 +4,7 @@ import 'package:chess/controller/api_service/login_signup_api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:chess/models/moves.dart';
+import 'package:logger/logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
@@ -21,6 +22,8 @@ class GameController extends GetxController {
   RxString player2ID="".obs;
   RxString displayMoves = "".obs;
   RxList buttonsList = [].obs;
+  List fetchedMoveList = [];
+
 
   ///for button
   RxString endTime = "".obs;
@@ -106,7 +109,7 @@ class GameController extends GetxController {
     });
 
     prefs.setString("localMoves", localMoves);
-    moveList.add(Moves(moveTime: moves.moveTime, playerMove: moves.playerMove));
+    // moveList.add(Moves(moveTime: moves.moveTime, playerMove: moves.playerMove));
     buttonsList.clear();
   }
 
@@ -132,9 +135,9 @@ class GameController extends GetxController {
     colorController.selectedColor(color);
     loginController.opponentId(opponentId);
     for (int i = 0; i < storedMovesList.length; i++) {
-      moveList.add(Moves(
-          moveTime: storedMovesList[i]["time"],
-          playerMove: storedMovesList[i]["from"]));
+      // moveList.add(Moves(
+      //     moveTime: storedMovesList[i]["time"],
+      //     playerMove: storedMovesList[i]["from"]));
     }
   }
 
@@ -214,4 +217,20 @@ class GameController extends GetxController {
       print(e);
     }
   }
+
+  addCurrentUserMove(){
+    moveList.clear();
+    for(var i in fetchedMoveList){
+      if(loginController.currentUserDetail!.id ==  i["userId"]){
+        moveList.add(Moves(id: DateTime.now().toIso8601String(), moveTime: "", playerMove: i["move"]));
+      }
+    }
+  }
+
+  deleteMoves(String id){
+    int i = moveList.indexWhere((element) => element.id == id);
+    print(moveList[i].playerMove);
+    moveList.removeAt(i);
+  }
+
 }

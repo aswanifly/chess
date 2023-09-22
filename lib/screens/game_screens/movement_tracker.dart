@@ -110,14 +110,14 @@ class MovementTracker extends StatelessWidget {
           margin: EdgeInsets.only(left: 15.w, right: 15.w),
           color: grey,
           width: double.infinity,
-          child: ListView.builder(
+          child: Obx(() => ListView.builder(
               shrinkWrap: true,
               itemCount: gameBoardController.moveList.length,
               itemBuilder: (_, i) {
                 return Container(
                   decoration: BoxDecoration(
                       border:
-                          Border(bottom: BorderSide(color: Color(0xffB0B0B0)))),
+                      Border(bottom: BorderSide(color: Color(0xffB0B0B0)))),
                   child: ListTile(
                     leading: SizedBox(
                       width: 160.w,
@@ -139,14 +139,16 @@ class MovementTracker extends StatelessWidget {
                           ]),
                     ),
                     trailing: IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          gameBoardController.deleteMoves( gameBoardController.moveList[i].id);
+                        },
                         icon: Icon(
                           Icons.delete,
                           size: 18.w,
                         )),
                   ),
                 );
-              })),
+              }))),
     );
   }
 
@@ -228,17 +230,17 @@ class MovementTracker extends StatelessWidget {
             children: [
               SvgPicture.asset("assets/svg/blackKing.svg"),
               horizontalWidth(width: 13.w),
-              Text(
-                "12 points",
-                style: violet50013,
-              ),
+              // Text(
+              //   "12 points",
+              //   style: violet50013,
+              // ),
               Spacer(),
               SvgPicture.asset("assets/svg/whiteKing.svg"),
               horizontalWidth(width: 13.w),
-              Text(
-                "10 points",
-                style: violet50013,
-              ),
+              // Text(
+              //   "10 points",
+              //   style: violet50013,
+              // ),
             ],
           ),
         ],

@@ -48,14 +48,13 @@ class HomeController extends GetxController {
 
   Future<List<FriendRequestDetail>> friendRequest() async {
     String url = FRIEND_REQ;
-
     Map<String, dynamic> data = await ApiHelper()
         .apiTypeGet(url, loginSignCont.currentUserDetail!.token);
-    Logger().i(data["list"]);
     List<FriendRequestDetail> allReq = [];
     for (int i = 0; i < data["list"].length; i++) {
       allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
     }
+    Logger().f(data);
     return allReq;
   }
 
@@ -107,7 +106,6 @@ class HomeController extends GetxController {
       if (i.userId == userId) {
         onePlayerReqDetail = i;
         playingTime(i.time);
-        Logger().e(i.userId);
         return i;
       }
     }

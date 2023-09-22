@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
 
 import '../constants/constant.dart';
 import '../controller/api_service/confirm_controller.dart';
@@ -114,9 +115,9 @@ class _GameBoardState extends State<GameBoard> {
                     //       moveTime: time,
                     //       playerMove: controller.displayMoves.value),
                     // );
-                    gameController.moveList.add(Moves(
-                        moveTime: "",
-                        playerMove: controller.displayMoves.value));
+                    // gameController.moveList.add(Moves(
+                    //     moveTime: "",
+                    //     playerMove: controller.displayMoves.value));
                     await sendMove();
                     Get.back();
                   },
@@ -233,16 +234,20 @@ class _GameBoardState extends State<GameBoard> {
                 //   });
                 // }
                 // controller.endTime.value = "$minute:$second";
-                Get.to(() => MovementTracker());
+
+                // Get.to(() => MovementTracker());
+                controller.addCurrentUserMove();
+                Get.to(()=>MovementTracker());
+
               },
               child: Text(
                 // "${socketController.isActive}",
-                "End time",
+                "End Game",
                 style: black50015,
               ),
             )
           ]),
-
+          verticalHeight(height: 5),
           ///clear continue button
           Row(
             children: [
@@ -569,7 +574,7 @@ class _GameBoardState extends State<GameBoard> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               List<dynamic> list = snapshot.data!;
-              print(list.toString());
+              controller.fetchedMoveList = list;
               return ListView.builder(
                   shrinkWrap: true,
                   itemCount: list.length,

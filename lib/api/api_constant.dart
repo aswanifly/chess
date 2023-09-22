@@ -13,7 +13,7 @@ const String SIGNUP = "/userRegister";
 //getAlluser
 const String GET_ALL_USER = "/getAllUsers";
 
-//Friedn Request
+//Friend Request
 const String FRIEND_REQ = "/getSenderList";
 const String SEND_FRIEND_REQ = "/sendrequest";
 const String CONFIRM_REQUEST = "/confirmrequest";
