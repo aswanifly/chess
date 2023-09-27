@@ -34,3 +34,6 @@ const String GET_MOVES = "/getbulkmoves/";
 
 const String GET_SINGLE_MOVE = "/getSingleMoves/";
 const String SEND_MOVE = "/singleMove/";
+
+
+const String GET_PDF_LINK = "/movesPdf";

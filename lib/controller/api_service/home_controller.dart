@@ -54,7 +54,7 @@ class HomeController extends GetxController {
     for (int i = 0; i < data["list"].length; i++) {
       allReq.add(FriendRequestDetail.fromJson(data["list"][i]));
     }
-    Logger().f(data);
+    // Logger().f(data);
     return allReq;
   }
 

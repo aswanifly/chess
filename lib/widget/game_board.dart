@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:chess/controller/socket/socket.dart';
-import 'package:chess/models/moves.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -11,7 +10,6 @@ import 'package:get/get.dart';
 import 'package:logger/logger.dart';
 
 import '../constants/constant.dart';
-import '../controller/api_service/confirm_controller.dart';
 import '../controller/api_service/game_controller.dart';
 import '../controller/api_service/login_signup_api.dart';
 import '../exports.dart';
@@ -142,6 +140,7 @@ class _GameBoardState extends State<GameBoard> {
 
   @override
   void initState() {
+    Logger().i( "gameId " +widget.gameId.toString());
     duration = Duration(
         seconds: controller.second.value, minutes: controller.minute.value);
     controller.opponentName.value = widget.opponentName!;
@@ -237,15 +236,14 @@ class _GameBoardState extends State<GameBoard> {
 
                 // Get.to(() => MovementTracker());
                 controller.addCurrentUserMove();
-                Get.to(()=>MovementTracker());
-
+                Get.to(()=>MovementTracker(gameId: widget.gameId!,));
               },
               child: Text(
                 // "${socketController.isActive}",
                 "End Game",
                 style: black50015,
               ),
-            )
+            ),
           ]),
           verticalHeight(height: 5),
           ///clear continue button

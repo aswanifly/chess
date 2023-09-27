@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:chess/api/api_helper.dart';
 import 'package:chess/controller/api_service/login_signup_api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:chess/models/moves.dart';
 import 'package:logger/logger.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
@@ -13,17 +15,18 @@ import '../socket/socket.dart';
 import 'confirm_controller.dart';
 
 class GameController extends GetxController {
-
-
-
   RxString opponentName = "".obs;
   RxString gameId = "".obs;
-  RxString player1ID="".obs;
-  RxString player2ID="".obs;
+  RxString player1ID = "".obs;
+  RxString player2ID = "".obs;
   RxString displayMoves = "".obs;
   RxList buttonsList = [].obs;
   List fetchedMoveList = [];
 
+  String? pdfLink;
+  String? pdfPath;
+
+  RxBool loadingPdfLink = false.obs;
 
   ///for button
   RxString endTime = "".obs;
@@ -46,32 +49,32 @@ class GameController extends GetxController {
     switch (currentPiece.value) {
       case 0:
 
-      ///pawn
+        ///pawn
         displayMoves(".${buttonsList.join('')}");
         break;
       case 1:
 
-      ///knight
+        ///knight
         displayMoves("N${buttonsList.join('')}");
         break;
       case 2:
 
-      ///rook
+        ///rook
         displayMoves("R${buttonsList.join('')}");
         break;
       case 3:
 
-      ///bishop
+        ///bishop
         displayMoves("B${buttonsList.join('')}");
         break;
       case 4:
 
-      ///queen
+        ///queen
         displayMoves("Q${buttonsList.join('')}");
         break;
       case 5:
 
-      ///king
+        ///king
         displayMoves("K${buttonsList.join('')}");
         break;
       default:
@@ -120,7 +123,8 @@ class GameController extends GetxController {
     localMovesList.clear();
   }
 
-  fetchFromLocalStorage(int lastSecond,
+  fetchFromLocalStorage(
+      int lastSecond,
       int lastMinute,
       List<dynamic> storedMovesList,
       String localOpponentName,
@@ -143,7 +147,7 @@ class GameController extends GetxController {
 
   addingToDB(String token) async {
     var url =
-    Uri.parse("http://15.207.114.155:7000/insertbulkmoves/${gameId.value}");
+        Uri.parse("http://15.207.114.155:7000/insertbulkmoves/${gameId.value}");
     var header = {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -179,7 +183,7 @@ class GameController extends GetxController {
   getMoves() async {
     var url = GET_SINGLE_MOVE + gameId.value;
     var data =
-    ApiHelper().apiTypeGet(url, loginController.currentUserDetail!.token);
+        ApiHelper().apiTypeGet(url, loginController.currentUserDetail!.token);
     return data;
   }
 
@@ -192,7 +196,8 @@ class GameController extends GetxController {
     };
     print(jsonBody);
     try {
-      await ApiHelper().apiType(url: url,
+      await ApiHelper().apiType(
+          url: url,
           jsonBody: jsonBody,
           token: loginController.currentUserDetail!.token,
           methodType: 'POST');
@@ -203,34 +208,79 @@ class GameController extends GetxController {
   }
 
   getGameStartTime() async {
-    String url = START_TIME + gameId.value; // gameId.value; // "649559f38c80e49cb9ba4f21"; // 649a815ead10e3f00d8e7c81 // 649d33423833d765361201de
-    final Map<String, String> jsonBody= {};
+    String url = START_TIME +
+        gameId
+            .value; // gameId.value; // "649559f38c80e49cb9ba4f21"; // 649a815ead10e3f00d8e7c81 // 649d33423833d765361201de
+    final Map<String, String> jsonBody = {};
     try {
-      Map<String, dynamic> res = await ApiHelper().apiType(url: url,
+      Map<String, dynamic> res = await ApiHelper().apiType(
+          url: url,
           jsonBody: jsonBody,
           token: loginController.currentUserDetail!.token,
           methodType: 'PUT');
       print(res.toString());
-      print("Start Time From API: "+res["startTime"]);
+      print("Start Time From API: " + res["startTime"]);
       gameStartTime.value = res["startTime"];
     } catch (e) {
       print(e);
     }
   }
 
-  addCurrentUserMove(){
+  addCurrentUserMove() {
     moveList.clear();
-    for(var i in fetchedMoveList){
-      if(loginController.currentUserDetail!.id ==  i["userId"]){
-        moveList.add(Moves(id: DateTime.now().toIso8601String(), moveTime: "", playerMove: i["move"]));
+    for (var i in fetchedMoveList) {
+      if (loginController.currentUserDetail!.id == i["userId"]) {
+        moveList.add(Moves(
+            id: DateTime.now().toIso8601String(),
+            moveTime: "",
+            playerMove: i["move"]));
       }
     }
   }
 
-  deleteMoves(String id){
+  deleteMoves(String id) {
     int i = moveList.indexWhere((element) => element.id == id);
     print(moveList[i].playerMove);
     moveList.removeAt(i);
   }
 
+  Future<String> getPdfLink(String token, String gameId) async {
+    try {
+      Map mapData = {"id": gameId};
+      Uri url = Uri.parse("http://15.207.114.155:7000/movesPdf");
+      var headers = {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      };
+      print(mapData);
+      loadingPdfLink(true);
+      var data =
+          await http.put(url, headers: headers, body: json.encode(mapData));
+      Map<String, dynamic> extractedData = jsonDecode(data.body);
+      pdfLink = extractedData["pdfPath"];
+      File pdfLinkPath = await extractPdf(pdfLink!);
+      pdfPath = pdfLinkPath.path;
+      loadingPdfLink(false);
+      return extractedData["pdfPath"];
+    } catch (e) {
+      loadingPdfLink(false);
+      rethrow;
+    }
+
+    // return data;
+  }
+
+  extractPdf(String url) async {
+    try {
+      var data = await http.get(Uri.parse(url));
+      var bytes = data.bodyBytes;
+      var dir = await getApplicationDocumentsDirectory();
+      File file = File("${dir.path}/chess.pdf");
+      Logger().e("file path ${file.path}");
+      File urlFile = await file.writeAsBytes(bytes);
+      return urlFile;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

@@ -4,12 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
+import 'package:logger/logger.dart';
+import 'package:share_plus/share_plus.dart';
 
 import '../../controller/api_service/game_controller.dart';
 import '../../exports.dart';
+import '../view_pdf/view_pdf_screen.dart';
 
 class MovementTracker extends StatelessWidget {
-  MovementTracker({Key? key}) : super(key: key);
+  final String gameId;
+
+  MovementTracker({Key? key, required this.gameId}) : super(key: key);
 
   final gameBoardController = Get.put(GameController());
   final loginController = Get.put(LoginAndSignUp());
@@ -18,16 +23,22 @@ class MovementTracker extends StatelessWidget {
   confirmMoves() async {
     loadingController.isLoading(true);
     try {
-      var data = await gameBoardController
-          .addingToDB(loginController.currentUserDetail!.token);
-      print(data);
+      // var data = await gameBoardController
+      //     .addingToDB(loginController.currentUserDetail!.token);
+
+      String pdfLink = await gameBoardController.getPdfLink(
+          loginController.currentUserDetail!.token, gameId);
+      // print(data);
       await gameBoardController.clearLocalMoves();
+      // Get.to(() => FinalResult());
       Get.to(() => FinalResult());
     } catch (e) {
       Get.showSnackbar(GetSnackBar(
         message: "Something Went Wrong",
+        duration: Duration(seconds: 2),
       ));
     }
+    // Get.to(()=>ViewPdfScreen());
     loadingController.isLoading(false);
   }
 
@@ -48,6 +59,112 @@ class MovementTracker extends StatelessWidget {
                         indent: 0,
                       ),
                       // timeSection(context),
+                      verticalHeight(height: 10),
+                      Padding(
+                        padding: EdgeInsets.only(left: 15.w, right: 15.w),
+                        child: Align(
+                            alignment: Alignment.topRight,
+                            child: SizedBox(
+                              height: 40,
+                              width: 40,
+                              // color: Colors.red,
+                              child: gameBoardController.loadingPdfLink.value ==
+                                      true
+                                  ? Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: CircularProgressIndicator(),
+                                    )
+                                  : IconButton(
+                                      onPressed: () {
+                                        gameBoardController
+                                            .getPdfLink(
+                                                loginController
+                                                    .currentUserDetail!.token,
+                                                gameId)
+                                            .then((responseData) {
+                                          Logger().i(responseData);
+                                          showModalBottomSheet(
+                                              context: context,
+                                              showDragHandle: true,
+                                              builder: (context) {
+                                                return SizedBox(
+                                                  width: double.infinity,
+                                                  child: Padding(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 10.w,
+                                                            vertical: 20.h),
+                                                    child: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        InkWell(
+                                                          onTap: () {
+                                                            Get.back();
+                                                            Get.to(()=>ViewPdfScreen(pdfUrl: gameBoardController.pdfLink!,));
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(Icons
+                                                                  .picture_as_pdf),
+                                                              horizontalWidth(
+                                                                  width: 10.w),
+                                                              Text("View Pdf"),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        verticalHeight(
+                                                            height: 20),
+                                                        InkWell(
+                                                          onTap: (){
+                                                            Get.back();
+                                                            List<XFile> fileList = [XFile(gameBoardController.pdfPath!)];
+                                                            Share.shareXFiles(fileList);
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(Icons.share),
+                                                              horizontalWidth(
+                                                                  width: 10.w),
+                                                              Text("Share as Pdf"),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        // Divider(),
+                                                        verticalHeight(
+                                                            height: 20),
+                                                        InkWell(
+                                                          onTap: (){
+                                                            Get.back();
+                                                            Share
+                                                            .share(gameBoardController.pdfLink!);
+                                                          },
+                                                          child: Row(
+                                                            children: [
+                                                              Icon(Icons.share),
+                                                              horizontalWidth(
+                                                                  width: 10.w),
+                                                              Text(
+                                                                  "Share Pdf link"),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                );
+                                              });
+                                        });
+                                      },
+                                      icon: Icon(Icons.share)),
+                            )),
+                      ),
                       verticalHeight(height: 10.h),
                       allMovementList(),
                       verticalHeight(height: 50.h),
@@ -83,20 +200,25 @@ class MovementTracker extends StatelessWidget {
                           borderRadius: BorderRadius.circular(8.r),
                           color: Colors.black,
                         ),
-                        child: Column(mainAxisAlignment: MainAxisAlignment.start,crossAxisAlignment: CrossAxisAlignment.center,children:  [
-                          Text("Loading",style: TextStyle(color: Colors.white),),
-                          Padding(
-                            padding: EdgeInsets.only(top: 13.h),
-                            child: SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: CircularProgressIndicator(
-
-                                color: green,
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Loading",
+                                style: TextStyle(color: Colors.white),
                               ),
-                            ),
-                          ),
-                        ]),
+                              Padding(
+                                padding: EdgeInsets.only(top: 13.h),
+                                child: SizedBox(
+                                  height: 20.h,
+                                  width: 20.w,
+                                  child: CircularProgressIndicator(
+                                    color: green,
+                                  ),
+                                ),
+                              ),
+                            ]),
                       )),
                     ),
                   )
@@ -117,7 +239,7 @@ class MovementTracker extends StatelessWidget {
                 return Container(
                   decoration: BoxDecoration(
                       border:
-                      Border(bottom: BorderSide(color: Color(0xffB0B0B0)))),
+                          Border(bottom: BorderSide(color: Color(0xffB0B0B0)))),
                   child: ListTile(
                     leading: SizedBox(
                       width: 160.w,
@@ -134,13 +256,13 @@ class MovementTracker extends StatelessWidget {
                               gameBoardController.moveList[i].moveTime,
                               style: black50014,
                               overflow: TextOverflow.ellipsis,
-
                             )
                           ]),
                     ),
                     trailing: IconButton(
                         onPressed: () {
-                          gameBoardController.deleteMoves( gameBoardController.moveList[i].id);
+                          gameBoardController
+                              .deleteMoves(gameBoardController.moveList[i].id);
                         },
                         icon: Icon(
                           Icons.delete,
@@ -248,9 +370,9 @@ class MovementTracker extends StatelessWidget {
     );
   }
 
-  MaterialButton customButton(String name, Color color, Function()? ontap) =>
+  MaterialButton customButton(String name, Color color, Function()? onTap) =>
       MaterialButton(
-        onPressed: ontap,
+        onPressed: onTap,
         height: 40.h,
         minWidth: 110.w,
         color: color,
