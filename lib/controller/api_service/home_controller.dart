@@ -16,7 +16,7 @@ class HomeController extends GetxController {
   RxList<FriendRequestDetail> friendRequestList = <FriendRequestDetail>[].obs;
   RxList dummyFriend = [].obs; //data dega
   RxList requestSendList = [].obs;
-  final loginSignCont = Get.put(LoginAndSignUp());
+  final loginSignCont = Get.put(LoginAndSignUpController());
   RxString message = "".obs;
   FriendRequestDetail? onePlayerReqDetail;
   RxString playingTime = "".obs;

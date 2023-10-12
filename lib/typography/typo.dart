@@ -30,6 +30,7 @@ final black50015 = GoogleFonts.roboto(fontSize: 15.sp,fontWeight: FontWeight.w50
 
 final white50024 = GoogleFonts.roboto(fontSize: 24.sp,fontWeight: FontWeight.w500,color: const Color(0xFFFAFAFA));
 final white50016 = GoogleFonts.roboto(fontSize: 16.sp,fontWeight: FontWeight.w500,color: const Color(0xFFFAFAFA));
+final white40013 = GoogleFonts.roboto(fontSize: 13.sp,fontWeight: FontWeight.w400,color: const Color(0xFFFAFAFA));
 ///violet
 final violet50013 = GoogleFonts.roboto(fontSize: 13.sp,fontWeight: FontWeight.w500,color: const Color(0xFF6750A4));
 final violet50015 = GoogleFonts.roboto(fontSize: 15.sp,fontWeight: FontWeight.w500,color: violet);
@@ -46,6 +47,7 @@ final green50024 = GoogleFonts.roboto(fontSize: 24.sp,fontWeight: FontWeight.w50
 final black60030 = GoogleFonts.roboto(fontSize: 30.sp,fontWeight: FontWeight.w600,color: Colors.black);
 final black60012 = GoogleFonts.roboto(fontSize: 12.sp,fontWeight: FontWeight.w600,color: Colors.black);
 final black60022 = GoogleFonts.roboto(fontSize: 22.sp,fontWeight: FontWeight.w600,color: Colors.black);
+final black40013 = GoogleFonts.roboto(fontSize: 13.sp,fontWeight: FontWeight.w400,color: Colors.black);
 
 
 

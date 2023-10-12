@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:chess/api/api_helper.dart';
+import 'package:chess/controller/api_service/home_controller.dart';
 import 'package:chess/controller/api_service/login_signup_api.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -11,6 +12,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:get/get.dart';
 
 import '../../api/api_constant.dart';
+import '../../models/all_users_details.dart';
+import '../../models/winner_model.dart';
 import '../socket/socket.dart';
 import 'confirm_controller.dart';
 
@@ -22,6 +25,10 @@ class GameController extends GetxController {
   RxString displayMoves = "".obs;
   RxList buttonsList = [].obs;
   List fetchedMoveList = [];
+
+  RxBool showDialogBox = false.obs;
+
+  RxInt buttonSelected = 0.obs;
 
   String? pdfLink;
   String? pdfPath;
@@ -41,9 +48,12 @@ class GameController extends GetxController {
   RxInt currentPiece = 0.obs;
   final Rx<TextEditingController> editingMoveController =
       TextEditingController().obs;
-  final loginController = Get.put(LoginAndSignUp());
+  final loginController = Get.put(LoginAndSignUpController());
   final colorController = Get.put(ConfirmController());
+  final homeController = Get.put(HomeController());
   RxString gameStartTime = "".obs;
+
+  WinnerUserModel? winnerUserModel;
 
   void pieceMove() {
     switch (currentPiece.value) {
@@ -175,7 +185,9 @@ class GameController extends GetxController {
   }
 
   bool checkMove() {
-    var exp = RegExp(r'([a-z0-9])\1');
+    // var exp = RegExp(r'([a-z0-9])\1');
+
+    var exp = RegExp(r'([a-z]\d)+(?!([a-z]|\d))');
     bool check = exp.hasMatch(displayMoves.value);
     return check;
   }
@@ -207,6 +219,32 @@ class GameController extends GetxController {
     }
   }
 
+  endGameApi() async {
+    String url = END_TIME + gameId.value;
+    final Map<String, dynamic> jsonBody = {
+      "winnerId": winnerUserModel!.winnerId,
+      "friendId": winnerUserModel!.looserId,
+      "gameStatus": "winner"
+    };
+    Logger().i(jsonBody);
+    try {
+     var value =  await ApiHelper().putApiContentJsonType(
+          url: url,
+          jsonBody: jsonEncode(jsonBody),
+          token: loginController.currentUserDetail!.token);
+     Map<String,dynamic> extData = json.decode(value);
+      Logger().i(extData);
+      if(extData["WinnerID"] != "" ){
+        return true;
+      }else{
+        return false;
+      }
+
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   getGameStartTime() async {
     String url = START_TIME +
         gameId
@@ -229,12 +267,12 @@ class GameController extends GetxController {
   addCurrentUserMove() {
     moveList.clear();
     for (var i in fetchedMoveList) {
-      if (loginController.currentUserDetail!.id == i["userId"]) {
+      // if (loginController.currentUserDetail!.id == i["userId"]) {
         moveList.add(Moves(
             id: DateTime.now().toIso8601String(),
             moveTime: "",
-            playerMove: i["move"]));
-      }
+            playerMove: i["move"],userId: i["userId"]));
+      // }
     }
   }
 
@@ -257,6 +295,7 @@ class GameController extends GetxController {
       var data =
           await http.put(url, headers: headers, body: json.encode(mapData));
       Map<String, dynamic> extractedData = jsonDecode(data.body);
+      Logger().i(extractedData);
       pdfLink = extractedData["pdfPath"];
       File pdfLinkPath = await extractPdf(pdfLink!);
       pdfPath = pdfLinkPath.path;

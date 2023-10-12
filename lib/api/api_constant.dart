@@ -26,7 +26,7 @@ const String SELECT_COLOR = "";
 
 //start and end time
 const String START_TIME = "/starttime/";
-const String END_TIME = "";
+const String END_TIME = "/endtime/";
 
 //moves
 const String INSERT_MOVES = "/insertbulkmoves/";
@@ -37,3 +37,5 @@ const String SEND_MOVE = "/singleMove/";
 
 
 const String GET_PDF_LINK = "/movesPdf";
+
+const String USER_HISTORY = "/userHistory";

@@ -1,12 +1,22 @@
+import 'package:chess/controller/api_service/user_history_controller.dart';
 import 'package:chess/exports.dart';
-import 'package:chess/screens/game_screens/opponent_profile.dart';
+import 'package:chess/screens/game_screens/user_history.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
-class FinalResult extends StatelessWidget {
+class FinalResult extends StatefulWidget {
   const FinalResult({Key? key}) : super(key: key);
+
+  @override
+  State<FinalResult> createState() => _FinalResultState();
+}
+
+class _FinalResultState extends State<FinalResult> {
+
+  final userHistoryController = Get.put(UserHistoryController());
+
 
   Future<bool> _onWillPop() async {
     Get.closeAllSnackbars();
@@ -17,6 +27,18 @@ class FinalResult extends StatelessWidget {
     ));
     return false;
   }
+
+  getUserHistory()async{
+    userHistoryController.getUserHistory();
+  }
+
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +112,7 @@ class FinalResult extends StatelessWidget {
           child: MaterialButton(
             onPressed: () {
               Navigator.of(context).push(
-                  MaterialPageRoute(builder: (context) => OpponentProfile()));
+                  MaterialPageRoute(builder: (context) => UserHistoryScreen()));
             },
             color: violet,
             padding: EdgeInsets.symmetric(horizontal: 60.w),

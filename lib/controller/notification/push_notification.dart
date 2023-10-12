@@ -16,7 +16,7 @@ import '../../screens/game_screens/choose_color.dart';
 import '../api_service/login_signup_api.dart';
 
 class PushNotification extends GetxController {
-  final loginController = Get.put(LoginAndSignUp());
+  final loginController = Get.put(LoginAndSignUpController());
   final homeController = Get.put(HomeController());
   final gameController = Get.put(GameController());
 

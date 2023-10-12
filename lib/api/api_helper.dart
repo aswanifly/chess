@@ -85,4 +85,25 @@ class ApiHelper {
     }
   }
 
+
+  putApiContentJsonType({required url,
+    required jsonBody,
+    required token})async{
+    try{
+      String uri = baseUrl + url;
+      Map<String,String> header = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': 'Bearer $token',
+      };
+      var response = await http.put(Uri.parse(uri),body: jsonBody,headers: header);
+      return response.body;
+    }catch(e){
+      rethrow;
+    }
+
+
+
+  }
+
 }

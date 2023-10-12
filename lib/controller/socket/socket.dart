@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:chess/controller/api_service/home_controller.dart';
 import 'package:chess/controller/api_service/login_signup_api.dart';
 import 'package:chess/models/player.dart';
+import 'package:logger/logger.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -14,13 +15,15 @@ import '../api_service/game_controller.dart';
 
 class SocketConnectionController extends GetxController {
   ///controllers
-  final loginController = Get.put(LoginAndSignUp());
+  final loginController = Get.put(LoginAndSignUpController());
   final homeController = Get.put(HomeController());
   final gameController = Get.put(GameController());
 
   ///dataTypes
 
   RxBool isActive = false.obs;
+  RxBool continueButtonStatus = false.obs;
+  RxBool neutralContinueButton = true.obs;
   Socket? socket;
   Timer? timer;
 
@@ -32,6 +35,8 @@ class SocketConnectionController extends GetxController {
   RxInt second = 0.obs;
   RxInt second2 = 0.obs;
   RxInt timeDiff = 0.obs;
+
+  RxBool endGameStatus = false.obs;
 
   @override
   void onInit() {
@@ -63,16 +68,33 @@ class SocketConnectionController extends GetxController {
     });
     socket!.on('message', (data) {
       Map<String, dynamic> socketData = jsonDecode(data);
-      isActive(socketData["isActive"]);
-      if (loginController.currentUserDetail!.id == gameController.player1ID.value && isActive.isTrue) {
-        startTimer();
-      }else if(loginController.currentUserDetail!.id == gameController.player2ID.value && isActive.isFalse){
-        startTimer();
+      // isActive(socketData["isActive"]);
+      // if (loginController.currentUserDetail!.id == gameController.player1ID.value && isActive.isTrue) {
+      //   startTimer();
+      // }else if(loginController.currentUserDetail!.id == gameController.player2ID.value && isActive.isFalse){
+      //   startTimer();
+      // }
+      // else {
+      //   pauseTime();
+      // }
+
+      if(socketData.containsKey("endGameStatus")){
+        endGameStatus.value = socketData["endGameStatus"];
+      }else{
+        continueButtonStatus.value = socketData["continueStatus"];
+        neutralContinueButton.value = socketData["neutralStatus"];
       }
-      else {
-        pauseTime();
+
+      Logger().i(socketData);
+      print("player 1 ${gameController.player1ID} and player 2 ${gameController.player2ID}");
+      if(continueButtonStatus.value){
+        print("player 1 make move when value ${continueButtonStatus.value}");
+      }else{
+        print("player 2 make move when value ${continueButtonStatus.value}");
       }
     });
+    // lappi -> ff65 player 2
+    //animal -> f366 player 1
     socket!.on('disconnect', (_) => print('disconnect'));
   }
 
@@ -86,6 +108,23 @@ class SocketConnectionController extends GetxController {
 
     socket!.emit('message', jsonEncode(message));
   }
+
+  void endGameWithSocket(bool endGameStatus){
+    Map<String, dynamic> message = {
+      "endGameStatus":endGameStatus
+    };
+
+    socket!.emit('message', jsonEncode(message));
+  }
+  void changesContinueButtonStatus(bool continueStatus){
+    Map<String, dynamic> message = {
+      "continueStatus":continueStatus,
+      "neutralStatus": false
+    };
+
+    socket!.emit('message', jsonEncode(message));
+  }
+
 
   startTimer() {
     const addSecond = 1;
@@ -128,12 +167,12 @@ class SocketConnectionController extends GetxController {
     print('Connection Closed');
   }
 
-   continueGame() {
-     if(chessGameStarted.isTrue){
-       startTimer();
-       gameStarted(true);
-     }
-  }
+  //  continueGame() {
+  //    if(chessGameStarted.isTrue){
+  //      startTimer();
+  //      gameStarted(true);
+  //    }
+  // }
 }
 
 // socket.onconnect((data)=>print(data));

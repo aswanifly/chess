@@ -14,7 +14,7 @@ class ConfirmController extends GetxController {
 
 
   ///controller
-  final loginSignCont = Get.put(LoginAndSignUp());
+  final loginSignCont = Get.put(LoginAndSignUpController());
 
   confirmRequest(String id) async {
     String url = CONFIRM_REQUEST;

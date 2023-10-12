@@ -8,7 +8,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/user_detail_model.dart';
 
-class LoginAndSignUp extends GetxController {
+class LoginAndSignUpController extends GetxController {
   final Rx<TextEditingController> nameC = TextEditingController().obs;
   final Rx<TextEditingController> emailC = TextEditingController().obs;
   final Rx<TextEditingController> passwordC = TextEditingController().obs;

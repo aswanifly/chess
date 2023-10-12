@@ -16,7 +16,7 @@ class SignUp extends StatefulWidget {
 class _SignUpState extends State<SignUp> {
   // bool isChecked = false;
   bool hidePassword = true;
-  final loginSignupController = Get.put(LoginAndSignUp());
+  final loginSignupController = Get.put(LoginAndSignUpController());
 
   final loadingController = Get.put(LoadingController());
 

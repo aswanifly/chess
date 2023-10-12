@@ -14,7 +14,7 @@ class ChooseColor extends StatelessWidget {
       : super(key: key);
 
   final confrmAndColorController = Get.put(ConfirmController());
-  final loginCont = Get.put(LoginAndSignUp());
+  final loginCont = Get.put(LoginAndSignUpController());
 
   @override
   Widget build(BuildContext context) {

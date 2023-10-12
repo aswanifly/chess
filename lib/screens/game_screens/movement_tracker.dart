@@ -10,6 +10,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../controller/api_service/game_controller.dart';
 import '../../exports.dart';
 import '../view_pdf/view_pdf_screen.dart';
+import 'user_history.dart';
 
 class MovementTracker extends StatelessWidget {
   final String gameId;
@@ -17,7 +18,7 @@ class MovementTracker extends StatelessWidget {
   MovementTracker({Key? key, required this.gameId}) : super(key: key);
 
   final gameBoardController = Get.put(GameController());
-  final loginController = Get.put(LoginAndSignUp());
+  final loginController = Get.put(LoginAndSignUpController());
   final loadingController = Get.put(LoadingController());
 
   confirmMoves() async {
@@ -26,12 +27,12 @@ class MovementTracker extends StatelessWidget {
       // var data = await gameBoardController
       //     .addingToDB(loginController.currentUserDetail!.token);
 
-      String pdfLink = await gameBoardController.getPdfLink(
-          loginController.currentUserDetail!.token, gameId);
+      // String pdfLink = await gameBoardController.getPdfLink(
+      //     loginController.currentUserDetail!.token, gameId);
       // print(data);
       await gameBoardController.clearLocalMoves();
       // Get.to(() => FinalResult());
-      Get.to(() => FinalResult());
+      Get.to(() => UserHistoryScreen());
     } catch (e) {
       Get.showSnackbar(GetSnackBar(
         message: "Something Went Wrong",
@@ -82,7 +83,6 @@ class MovementTracker extends StatelessWidget {
                                                     .currentUserDetail!.token,
                                                 gameId)
                                             .then((responseData) {
-                                          Logger().i(responseData);
                                           showModalBottomSheet(
                                               context: context,
                                               showDragHandle: true,
@@ -107,7 +107,11 @@ class MovementTracker extends StatelessWidget {
                                                         InkWell(
                                                           onTap: () {
                                                             Get.back();
-                                                            Get.to(()=>ViewPdfScreen(pdfUrl: gameBoardController.pdfLink!,));
+                                                            Get.to(() =>
+                                                                ViewPdfScreen(
+                                                                  pdfUrl: gameBoardController
+                                                                      .pdfLink!,
+                                                                ));
                                                           },
                                                           child: Row(
                                                             children: [
@@ -122,17 +126,24 @@ class MovementTracker extends StatelessWidget {
                                                         verticalHeight(
                                                             height: 20),
                                                         InkWell(
-                                                          onTap: (){
+                                                          onTap: () {
                                                             Get.back();
-                                                            List<XFile> fileList = [XFile(gameBoardController.pdfPath!)];
-                                                            Share.shareXFiles(fileList);
+                                                            List<XFile>
+                                                                fileList = [
+                                                              XFile(
+                                                                  gameBoardController
+                                                                      .pdfPath!)
+                                                            ];
+                                                            Share.shareXFiles(
+                                                                fileList);
                                                           },
                                                           child: Row(
                                                             children: [
                                                               Icon(Icons.share),
                                                               horizontalWidth(
                                                                   width: 10.w),
-                                                              Text("Share as Pdf"),
+                                                              Text(
+                                                                  "Share as Pdf"),
                                                             ],
                                                           ),
                                                         ),
@@ -140,10 +151,11 @@ class MovementTracker extends StatelessWidget {
                                                         verticalHeight(
                                                             height: 20),
                                                         InkWell(
-                                                          onTap: (){
+                                                          onTap: () {
                                                             Get.back();
-                                                            Share
-                                                            .share(gameBoardController.pdfLink!);
+                                                            Share.share(
+                                                                gameBoardController
+                                                                    .pdfLink!);
                                                           },
                                                           child: Row(
                                                             children: [
@@ -237,38 +249,36 @@ class MovementTracker extends StatelessWidget {
               itemCount: gameBoardController.moveList.length,
               itemBuilder: (_, i) {
                 return Container(
+                  padding: EdgeInsets.symmetric(vertical: 3,horizontal: 15),
+                  width: double.infinity,
+                  height: 45,
+                  alignment:loginController.currentUserDetail!.id ==
+                      gameBoardController.moveList[i].userId ? Alignment.centerLeft : Alignment.centerRight,
                   decoration: BoxDecoration(
                       border:
                           Border(bottom: BorderSide(color: Color(0xffB0B0B0)))),
-                  child: ListTile(
-                    leading: SizedBox(
-                      width: 160.w,
-                      child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${i + 1}. ${gameBoardController.moveList[i].playerMove}",
-                              style: black50014,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            Text(
-                              gameBoardController.moveList[i].moveTime,
-                              style: black50014,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          ]),
-                    ),
-                    trailing: IconButton(
-                        onPressed: () {
-                          gameBoardController
-                              .deleteMoves(gameBoardController.moveList[i].id);
-                        },
-                        icon: Icon(
-                          Icons.delete,
-                          size: 18.w,
-                        )),
-                  ),
+                  child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text("${i+1}. ",style: black50014,),
+                        Text(
+                          gameBoardController.moveList[i].playerMove,
+                          style: black50014,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ])
+
+                    // trailing: IconButton(
+                    //     onPressed: () {
+                    //       gameBoardController
+                    //           .deleteMoves(gameBoardController.moveList[i].id);
+                    //     },
+                    //     icon: Icon(
+                    //       Icons.delete,
+                    //       size: 18.w,
+                    //     )),
+
                 );
               }))),
     );

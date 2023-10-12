@@ -27,7 +27,7 @@ class _LoginState extends State<Login> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final loadingController = Get.put(LoadingController());
   bool hidePassword = true;
-  final loginSignupController = Get.put(LoginAndSignUp());
+  final loginSignupController = Get.put(LoginAndSignUpController());
   final pushNotificationController = Get.put(PushNotification());
 
 

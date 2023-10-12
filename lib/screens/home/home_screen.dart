@@ -34,22 +34,22 @@ class _HomeScreenState extends State<HomeScreen> {
   bool selected = false;
   int? currentIndex;
   final homeController = Get.put(HomeController());
-  final loginAndSignUp = Get.put(LoginAndSignUp());
+  final loginAndSignUp = Get.put(LoginAndSignUpController());
   final loadingCont = Get.put(LoadingController());
   final pushNotification = Get.put(PushNotification());
-  bool _isloading = false;
+  bool _isLoading = false;
   final searchController = TextEditingController();
-  final confrmAndColorController = Get.put(ConfirmController());
+  final confirmAndColorController = Get.put(ConfirmController());
   List<AllUsersDetails> searchUser = [];
 
   getAllUsers() async {
     setState(() {
-      _isloading = true;
+      _isLoading = true;
     });
 
     await homeController.getAllUsers(loginAndSignUp.currentUserDetail!.token);
     setState(() {
-      _isloading = false;
+      _isLoading = false;
     });
   }
 
@@ -103,17 +103,16 @@ class _HomeScreenState extends State<HomeScreen> {
         });
   }
 
-
   sendRequest(AllUsersDetails allUsersDetails) async {
     await homeController.sendFriendRequest(
         allUsersDetails.userId!,
-        confrmAndColorController.selectedColor.value,
-        confrmAndColorController.selectedTiming.value.toString());
+        confirmAndColorController.selectedColor.value,
+        confirmAndColorController.selectedTiming.value.toString());
 
     sendNotification(
         loginAndSignUp.currentUserDetail!.userName, allUsersDetails.userId!);
-    confrmAndColorController.selectedColor.value = '';
-    confrmAndColorController.selectedTiming.value = 0;
+    confirmAndColorController.selectedColor.value = '';
+    confirmAndColorController.selectedTiming.value = 0;
     Get.back();
     Get.showSnackbar(GetSnackBar(
       duration: Duration(seconds: 1),
@@ -166,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
       },
       child: SafeArea(
         child: Scaffold(
-          body: _isloading
+          body: _isLoading
               ? const Center(
                   child: CircularProgressIndicator(
                     color: green,
@@ -286,7 +285,6 @@ class _HomeScreenState extends State<HomeScreen> {
                           gameId: data.gameId,
                           opponentName: allUsersDetails.userName,
                         ));
-              print("${data?.colour} ${data?.time} ${data?.gameId}");
                   }
                 : null,
             tileColor:
@@ -373,14 +371,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Expanded(
                                       child: GestureDetector(
                                     onTap: () {
-                                      confrmAndColorController
+                                      confirmAndColorController
                                           .selectedColorIndex.value = 1;
-                                      confrmAndColorController
+                                      confirmAndColorController
                                           .selectedColor("black");
                                     },
                                     child: Container(
                                       decoration: BoxDecoration(
-                                        color: confrmAndColorController
+                                        color: confirmAndColorController
                                                     .selectedColorIndex.value ==
                                                 1
                                             ? grey
@@ -406,15 +404,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Expanded(
                                     child: GestureDetector(
                                       onTap: () {
-                                        confrmAndColorController
+                                        confirmAndColorController
                                             .selectedColorIndex.value = 2;
-                                        confrmAndColorController
+                                        confirmAndColorController
                                             .selectedColor("white");
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          color: confrmAndColorController
+                                          color: confirmAndColorController
                                                       .selectedColorIndex
                                                       .value ==
                                                   2
@@ -447,12 +445,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                         secondPartTwo: e.value["3"],
                                         secondPartThree: e.value["4"],
                                         callback: () {
-                                          confrmAndColorController
+                                          confirmAndColorController
                                               .selectedTimingTile(e.key);
-                                          confrmAndColorController
+                                          confirmAndColorController
                                               .selectedTiming(
                                                   int.parse(e.value["2"]));
-                                          print(confrmAndColorController
+                                          print(confirmAndColorController
                                               .selectedTiming.value);
                                         },
                                         index: e.key,
@@ -460,7 +458,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   .toList()),
                           verticalHeight(height: 5.h),
                           Obx(() =>
-                              confrmAndColorController.selectedColor.isEmpty
+                              confirmAndColorController.selectedColor.isEmpty
                                   ? Text(
                                       "Please Select Color",
                                       style: TextStyle(
@@ -477,12 +475,12 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text("Cancel"),
                           onPressed: () {
                             Get.back();
-                            confrmAndColorController.selectedColor("");
-                            confrmAndColorController.selectedColorIndex(0);
+                            confirmAndColorController.selectedColor("");
+                            confirmAndColorController.selectedColorIndex(0);
                           }),
                       Obx(() => MaterialButton(
                           onPressed:
-                              confrmAndColorController.selectedColor.isNotEmpty
+                              confirmAndColorController.selectedColor.isNotEmpty
                                   ? () {
                                       sendRequest(allUsersDetails);
                                     }
@@ -490,7 +488,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Text(
                             "Send",
                             style: TextStyle(
-                                color: confrmAndColorController
+                                color: confirmAndColorController
                                         .selectedColor.isEmpty
                                     ? Colors.grey
                                     : null),
@@ -532,29 +530,29 @@ class _HomeScreenState extends State<HomeScreen> {
 
         case 2:
           return SizedBox();
-          // final socketController = Get.put(SocketConnectionController());
-          // return Chip(label: Obx(() => Text(socketController.time.value)));
-          // return Row(
-          //   mainAxisSize: MainAxisSize.min,
-          //   children: [
-          //     IconButton(
-          //         onPressed: () {
-          //           homeController.singleUserDetails = allUsersDetails;
-          //           homeController.singleFriendReq(allUsersDetails.userId!);
-          //           Get.to(() => GameConfirmation(
-          //                 allUsersDetails: allUsersDetails,
-          //               ));
-          //           print(homeController.onePlayerReqDetail!.time);
-          //         },
-          //         icon: Icon(Icons.check_circle_outline, color: Colors.black)),
-          //     IconButton(
-          //         onPressed: () {},
-          //         icon: Icon(
-          //           Icons.cancel_outlined,
-          //           color: Colors.black,
-          //         ))
-          //   ],
-          // );
+        // final socketController = Get.put(SocketConnectionController());
+        // return Chip(label: Obx(() => Text(socketController.time.value)));
+        // return Row(
+        //   mainAxisSize: MainAxisSize.min,
+        //   children: [
+        //     IconButton(
+        //         onPressed: () {
+        //           homeController.singleUserDetails = allUsersDetails;
+        //           homeController.singleFriendReq(allUsersDetails.userId!);
+        //           Get.to(() => GameConfirmation(
+        //                 allUsersDetails: allUsersDetails,
+        //               ));
+        //           print(homeController.onePlayerReqDetail!.time);
+        //         },
+        //         icon: Icon(Icons.check_circle_outline, color: Colors.black)),
+        //     IconButton(
+        //         onPressed: () {},
+        //         icon: Icon(
+        //           Icons.cancel_outlined,
+        //           color: Colors.black,
+        //         ))
+        //   ],
+        // );
         default:
           return SizedBox();
       }

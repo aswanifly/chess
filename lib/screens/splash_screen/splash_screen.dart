@@ -20,7 +20,7 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final loginAndSignUp = Get.put(LoginAndSignUp());
+  final loginAndSignUp = Get.put(LoginAndSignUpController());
   // final gameBoardController = Get.put(GameController());
 
   Future<bool> autoLogin() async {

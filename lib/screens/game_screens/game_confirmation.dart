@@ -20,7 +20,7 @@ class GameConfirmation extends StatefulWidget {
 }
 
 class _GameConfirmationState extends State<GameConfirmation> {
-  final loginSignCont = Get.put(LoginAndSignUp());
+  final loginSignCont = Get.put(LoginAndSignUpController());
 
   final loadingController = Get.put(LoadingController());
 
