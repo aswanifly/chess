@@ -23,7 +23,8 @@ class GameController extends GetxController {
   RxString player1ID = "".obs;
   RxString player2ID = "".obs;
   RxString displayMoves = "".obs;
-  RxList buttonsList = [].obs;
+  RxList buttonsListWithSymbol = [].obs;
+  RxList buttonsListWithoutSymbol = [].obs;
   List fetchedMoveList = [];
 
   RxBool showDialogBox = false.obs;
@@ -60,35 +61,35 @@ class GameController extends GetxController {
       case 0:
 
         ///pawn
-        displayMoves(".${buttonsList.join('')}");
+        displayMoves(".${buttonsListWithSymbol.join('')}");
         break;
       case 1:
 
         ///knight
-        displayMoves("N${buttonsList.join('')}");
+        displayMoves("N${buttonsListWithSymbol.join('')}");
         break;
       case 2:
 
         ///rook
-        displayMoves("R${buttonsList.join('')}");
+        displayMoves("R${buttonsListWithSymbol.join('')}");
         break;
       case 3:
 
         ///bishop
-        displayMoves("B${buttonsList.join('')}");
+        displayMoves("B${buttonsListWithSymbol.join('')}");
         break;
       case 4:
 
         ///queen
-        displayMoves("Q${buttonsList.join('')}");
+        displayMoves("Q${buttonsListWithSymbol.join('')}");
         break;
       case 5:
 
         ///king
-        displayMoves("K${buttonsList.join('')}");
+        displayMoves("K${buttonsListWithSymbol.join('')}");
         break;
       default:
-        displayMoves(".${buttonsList.join('')}");
+        displayMoves(".${buttonsListWithSymbol.join('')}");
     }
   }
 
@@ -98,11 +99,12 @@ class GameController extends GetxController {
   // }
 
   void addingToList(String move) {
-    buttonsList.add(move);
+    buttonsListWithSymbol.add(move);
   }
 
   void clearButtonList() {
-    buttonsList.clear();
+    buttonsListWithSymbol.clear();
+    buttonsListWithoutSymbol.clear();
   }
 
   addToLocalStorage(Moves moves) async {
@@ -123,7 +125,8 @@ class GameController extends GetxController {
 
     prefs.setString("localMoves", localMoves);
     // moveList.add(Moves(moveTime: moves.moveTime, playerMove: moves.playerMove));
-    buttonsList.clear();
+    buttonsListWithSymbol.clear();
+    buttonsListWithoutSymbol.clear();
   }
 
   clearLocalMoves() async {
@@ -187,9 +190,18 @@ class GameController extends GetxController {
   bool checkMove() {
     // var exp = RegExp(r'([a-z0-9])\1');
 
-    var exp = RegExp(r'([a-z]\d)+(?!([a-z]|\d))');
-    bool check = exp.hasMatch(displayMoves.value);
-    return check;
+    var exp = RegExp(r'(([a-z]\d[a-z]?)+)(?!([a-z]|\d))');
+    if (displayMoves.value.contains("0-0") ||
+        displayMoves.value.contains("0-0-0") ||
+        displayMoves.value.contains("x") ||
+        displayMoves.value.contains("+") ||
+        displayMoves.value.contains("#") ||
+        displayMoves.value.contains("=")) {
+      bool check = exp.hasMatch(buttonsListWithoutSymbol.join(''));
+      return check;
+    }else{
+      return false;
+    }
   }
 
   getMoves() async {
@@ -213,7 +225,8 @@ class GameController extends GetxController {
           jsonBody: jsonBody,
           token: loginController.currentUserDetail!.token,
           methodType: 'POST');
-      buttonsList.clear();
+      buttonsListWithSymbol.clear();
+      buttonsListWithoutSymbol.clear();
     } catch (e) {
       print(e);
     }
@@ -228,18 +241,17 @@ class GameController extends GetxController {
     };
     Logger().i(jsonBody);
     try {
-     var value =  await ApiHelper().putApiContentJsonType(
+      var value = await ApiHelper().putApiContentJsonType(
           url: url,
           jsonBody: jsonEncode(jsonBody),
           token: loginController.currentUserDetail!.token);
-     Map<String,dynamic> extData = json.decode(value);
+      Map<String, dynamic> extData = json.decode(value);
       Logger().i(extData);
-      if(extData["WinnerID"] != "" ){
+      if (extData["WinnerID"] != "") {
         return true;
-      }else{
+      } else {
         return false;
       }
-
     } catch (e) {
       rethrow;
     }
@@ -268,10 +280,11 @@ class GameController extends GetxController {
     moveList.clear();
     for (var i in fetchedMoveList) {
       // if (loginController.currentUserDetail!.id == i["userId"]) {
-        moveList.add(Moves(
-            id: DateTime.now().toIso8601String(),
-            moveTime: "",
-            playerMove: i["move"],userId: i["userId"]));
+      moveList.add(Moves(
+          id: DateTime.now().toIso8601String(),
+          moveTime: "",
+          playerMove: i["move"],
+          userId: i["userId"]));
       // }
     }
   }

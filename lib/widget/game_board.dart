@@ -83,7 +83,7 @@ class _GameBoardState extends State<GameBoard> {
                 ),
                 if (!controller.checkMove())
                   Text(
-                    "Wrong Move(eg.Q+a+5)",
+                    "Wrong Move(symbol-alphabet-number)",
                     style: TextStyle(
                       fontSize: 9,
                       color: Colors.red,
@@ -287,7 +287,7 @@ class _GameBoardState extends State<GameBoard> {
                   // controller.displayMoves.value =
                   //     controller.buttonsList.join('');
                   return Text(
-                    controller.buttonsList.join(''),
+                    controller.buttonsListWithSymbol.join(''),
                     overflow: TextOverflow.ellipsis,
                     style: black50016,
                   );
@@ -602,7 +602,8 @@ class _GameBoardState extends State<GameBoard> {
                 itemBuilder: (_, i) {
                   return Obx(() => GestureDetector(
                         onTap: () {
-                          controller.buttonsList.add(symbols[i]);
+                          // controller.buttonsList.add(symbols[i]);
+                          controller.buttonsListWithSymbol.insert(0,symbols[i]);
                         },
                         child: Center(
                           child: Container(
@@ -612,7 +613,7 @@ class _GameBoardState extends State<GameBoard> {
                               width: 30.h,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  color: controller.buttonsList
+                                  color: controller.buttonsListWithSymbol
                                           .contains(symbols[i])
                                       ? lightViolet
                                       : null),
@@ -679,7 +680,8 @@ class _GameBoardState extends State<GameBoard> {
                                     // } else {
                                     //   controller.buttonsList.add(listIndex[i]);
                                     // }
-                                    controller.buttonsList.add(listIndex[i]);
+                                    controller.buttonsListWithSymbol.add(listIndex[i]);
+                                    controller.buttonsListWithoutSymbol.add(listIndex[i]);
                                   },
                                   child: Center(
                                     child: Container(
@@ -690,7 +692,7 @@ class _GameBoardState extends State<GameBoard> {
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(18.r),
-                                            color: controller.buttonsList
+                                            color: controller.buttonsListWithSymbol
                                                     .contains(listIndex[i])
                                                 ? lightViolet
                                                 : null),
