@@ -295,13 +295,16 @@ class GameController extends GetxController {
     moveList.removeAt(i);
   }
 
-  Future<String> getPdfLink(String token, String gameId) async {
+  Future<void> getPdfLink({required String gameId,required String opponentId}) async {
     try {
-      Map mapData = {"id": gameId};
+      Map mapData = {
+        "id":gameId,
+        "friendId":opponentId
+      };
       Uri url = Uri.parse("http://15.207.114.155:7000/movesPdf");
       var headers = {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer ${loginController.currentUserDetail!.token}'
       };
       print(mapData);
       loadingPdfLink(true);
@@ -309,11 +312,11 @@ class GameController extends GetxController {
           await http.put(url, headers: headers, body: json.encode(mapData));
       Map<String, dynamic> extractedData = jsonDecode(data.body);
       Logger().i(extractedData);
-      pdfLink = extractedData["pdfPath"];
-      File pdfLinkPath = await extractPdf(pdfLink!);
-      pdfPath = pdfLinkPath.path;
+      // pdfLink = extractedData["pdfPath"];
+      // File pdfLinkPath = await extractPdf(pdfLink!);
+      // pdfPath = pdfLinkPath.path;
       loadingPdfLink(false);
-      return extractedData["pdfPath"];
+      // return extractedData["pdfPath"];
     } catch (e) {
       loadingPdfLink(false);
       rethrow;

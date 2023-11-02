@@ -43,6 +43,7 @@ class StartGame extends StatelessWidget {
     gameController.buttonSelected(0);
     final socketController = Get.put(SocketConnectionController());
     socketController.connectToSocket();
+    Logger().f(error: "player id", "player 2id ${player2ID!} and player1Id $player1ID");
     // socketController.changesContinueButtonStatus(true);
     return SafeArea(
       child: Scaffold(

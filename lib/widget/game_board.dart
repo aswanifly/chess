@@ -250,8 +250,15 @@ class _GameBoardState extends State<GameBoard> {
                 // Get.to(() => MovementTracker());
 
                 // Get.to(()=>MovementTracker(gameId: widget.gameId!,));
-                // showEndGameDialog(context);
-                gameController.showDialogBox(true);
+
+                // ->
+
+                gameController.getPdfLink(gameId: widget.gameId!,opponentId: loginAndSignUp.currentUserDetail!.id == widget.player1Id ? widget.player2Id : widget.player1Id);
+
+                // gameController.showDialogBox(true);
+
+
+
               },
               child: Text(
                 // "${socketController.isActive}",

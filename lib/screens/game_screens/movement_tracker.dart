@@ -77,102 +77,102 @@ class MovementTracker extends StatelessWidget {
                                     )
                                   : IconButton(
                                       onPressed: () {
-                                        gameBoardController
-                                            .getPdfLink(
-                                                loginController
-                                                    .currentUserDetail!.token,
-                                                gameId)
-                                            .then((responseData) {
-                                          showModalBottomSheet(
-                                              context: context,
-                                              showDragHandle: true,
-                                              builder: (context) {
-                                                return SizedBox(
-                                                  width: double.infinity,
-                                                  child: Padding(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 10.w,
-                                                            vertical: 20.h),
-                                                    child: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .center,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .start,
-                                                      children: [
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.back();
-                                                            Get.to(() =>
-                                                                ViewPdfScreen(
-                                                                  pdfUrl: gameBoardController
-                                                                      .pdfLink!,
-                                                                ));
-                                                          },
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(Icons
-                                                                  .picture_as_pdf),
-                                                              horizontalWidth(
-                                                                  width: 10.w),
-                                                              Text("View Pdf"),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        verticalHeight(
-                                                            height: 20),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.back();
-                                                            List<XFile>
-                                                                fileList = [
-                                                              XFile(
-                                                                  gameBoardController
-                                                                      .pdfPath!)
-                                                            ];
-                                                            Share.shareXFiles(
-                                                                fileList);
-                                                          },
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(Icons.share),
-                                                              horizontalWidth(
-                                                                  width: 10.w),
-                                                              Text(
-                                                                  "Share as Pdf"),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                        // Divider(),
-                                                        verticalHeight(
-                                                            height: 20),
-                                                        InkWell(
-                                                          onTap: () {
-                                                            Get.back();
-                                                            Share.share(
-                                                                gameBoardController
-                                                                    .pdfLink!);
-                                                          },
-                                                          child: Row(
-                                                            children: [
-                                                              Icon(Icons.share),
-                                                              horizontalWidth(
-                                                                  width: 10.w),
-                                                              Text(
-                                                                  "Share Pdf link"),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              });
-                                        });
+                                        // gameBoardController
+                                        //     .getPdfLink(
+                                        //         loginController
+                                        //             .currentUserDetail!.token,
+                                        //         gameId)
+                                        //     .then((responseData) {
+                                        //   showModalBottomSheet(
+                                        //       context: context,
+                                        //       showDragHandle: true,
+                                        //       builder: (context) {
+                                        //         return SizedBox(
+                                        //           width: double.infinity,
+                                        //           child: Padding(
+                                        //             padding:
+                                        //                 EdgeInsets.symmetric(
+                                        //                     horizontal: 10.w,
+                                        //                     vertical: 20.h),
+                                        //             child: Column(
+                                        //               mainAxisSize:
+                                        //                   MainAxisSize.min,
+                                        //               mainAxisAlignment:
+                                        //                   MainAxisAlignment
+                                        //                       .center,
+                                        //               crossAxisAlignment:
+                                        //                   CrossAxisAlignment
+                                        //                       .start,
+                                        //               children: [
+                                        //                 InkWell(
+                                        //                   onTap: () {
+                                        //                     Get.back();
+                                        //                     Get.to(() =>
+                                        //                         ViewPdfScreen(
+                                        //                           pdfUrl: gameBoardController
+                                        //                               .pdfLink!,
+                                        //                         ));
+                                        //                   },
+                                        //                   child: Row(
+                                        //                     children: [
+                                        //                       Icon(Icons
+                                        //                           .picture_as_pdf),
+                                        //                       horizontalWidth(
+                                        //                           width: 10.w),
+                                        //                       Text("View Pdf"),
+                                        //                     ],
+                                        //                   ),
+                                        //                 ),
+                                        //                 verticalHeight(
+                                        //                     height: 20),
+                                        //                 InkWell(
+                                        //                   onTap: () {
+                                        //                     Get.back();
+                                        //                     List<XFile>
+                                        //                         fileList = [
+                                        //                       XFile(
+                                        //                           gameBoardController
+                                        //                               .pdfPath!)
+                                        //                     ];
+                                        //                     Share.shareXFiles(
+                                        //                         fileList);
+                                        //                   },
+                                        //                   child: Row(
+                                        //                     children: [
+                                        //                       Icon(Icons.share),
+                                        //                       horizontalWidth(
+                                        //                           width: 10.w),
+                                        //                       Text(
+                                        //                           "Share as Pdf"),
+                                        //                     ],
+                                        //                   ),
+                                        //                 ),
+                                        //                 // Divider(),
+                                        //                 verticalHeight(
+                                        //                     height: 20),
+                                        //                 InkWell(
+                                        //                   onTap: () {
+                                        //                     Get.back();
+                                        //                     Share.share(
+                                        //                         gameBoardController
+                                        //                             .pdfLink!);
+                                        //                   },
+                                        //                   child: Row(
+                                        //                     children: [
+                                        //                       Icon(Icons.share),
+                                        //                       horizontalWidth(
+                                        //                           width: 10.w),
+                                        //                       Text(
+                                        //                           "Share Pdf link"),
+                                        //                     ],
+                                        //                   ),
+                                        //                 ),
+                                        //               ],
+                                        //             ),
+                                        //           ),
+                                        //         );
+                                        //       });
+                                        // });
                                       },
                                       icon: Icon(Icons.share)),
                             )),
